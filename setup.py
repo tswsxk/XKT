@@ -7,7 +7,10 @@ setup(
     name='XKT',
     version='0.0.1',
     install_requires=[
-        'mxnet',
         'tqdm',
+        'mxnet',
+        'gluonnlp',
+        'sklearn',
+        'longling=1.1.0',
     ]  # And any other dependencies foo needs
 )

@@ -332,7 +332,7 @@ class DKT(object):
         cfg = mod.cfg if cfg is None else cfg
 
         mod.logger.info("loading data")
-        data = etl(cfg.data_dir + "/student_log_kt.json.%s" % mode, params=cfg)
+        data = etl(cfg.data_dir + "%s" % mode, params=cfg)
 
         return data
 

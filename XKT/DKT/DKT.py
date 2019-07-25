@@ -327,19 +327,30 @@ class DKT(object):
     def transform(self, data):
         return transform(data, self.mod.cfg)
 
-    def etl(self, mode, cfg=None):
+    def etl(self, data_src, cfg=None):
         mod = self.mod
         cfg = mod.cfg if cfg is None else cfg
 
         mod.logger.info("loading data")
-        data = etl(cfg.data_dir + "%s" % mode, params=cfg)
+        data = etl(data_src, params=cfg)
 
         return data
 
-    def _train(self):
-        train_data = self.etl("train")
-        valid_data = self.etl("test")
+    def _train(self, train_f, valid_f):
+        train_data = self.etl(train_f)
+        valid_data = self.etl(valid_f)
         self.train_net(train_data, valid_data)
+
+    @staticmethod
+    def train(tf, vf, cfg=None, **kwargs):
+        module = DKT(cfg=cfg, **kwargs)
+        module.set_loss()
+        # module.viz()
+
+        module.toolbox_init()
+        module.model_init(**kwargs)
+
+        module._train(tf, vf)
 
     @staticmethod
     def test(test_epoch, dump_file=None, **kwargs):
@@ -362,18 +373,8 @@ class DKT(object):
         module.toolbox_init(validation_logger_mode=validation_logger_mode)
         module.model_init(init_model_file=init_model_file)
 
-        module._train()
-
-    @staticmethod
-    def train(cfg=None, **kwargs):
-        module = DKT(cfg=cfg, **kwargs)
-        module.set_loss()
-        # module.viz()
-
-        module.toolbox_init()
-        module.model_init(**kwargs)
-
-        module._train()
+        # module._train()
+        raise NotImplementedError
 
     @staticmethod
     def dump_configuration(**kwargs):
@@ -388,30 +389,24 @@ class DKT(object):
         return module
 
     @staticmethod
-    def run(default_entry="train"):
+    def run(parse_args=None):
         cfg_parser = ConfigurationParser(Configuration)
         cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.config))
         cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.inc_train))
         cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.train))
         cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.test))
         cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.load))
-        cfg_kwargs = cfg_parser()
-
-        if "subcommand" in cfg_kwargs:
-            subcommand = cfg_kwargs["subcommand"]
-            del cfg_kwargs["subcommand"]
+        if parse_args is not None:
+            cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args))
         else:
-            subcommand = default_entry
+            cfg_kwargs = cfg_parser()
+        assert "subcommand" in cfg_kwargs
+        subcommand = cfg_kwargs["subcommand"]
+        del cfg_kwargs["subcommand"]
+
+        print(cfg_kwargs)
         eval("%s.%s" % (DKT.__name__, subcommand))(**cfg_kwargs)
 
 
 if __name__ == '__main__':
-    # DKT.run()
-    DKT.train(
-        dataset="junyi",
-        hyper_params=dict(
-            ku_num=835,
-            hidden_num=900,
-            latent_dim=600,
-        )
-    )
+    DKT.run()

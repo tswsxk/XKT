@@ -9,12 +9,11 @@ import logging
 import os
 
 import mxnet as mx
-from longling.ML.MxnetHelper.gallery.layer import format_sequence
 from longling.ML.MxnetHelper.toolkit.ctx import split_and_load
 from longling.ML.MxnetHelper.toolkit.viz import plot_network, VizError
 from mxnet import gluon, nd, autograd
-from tqdm import tqdm
 from sklearn.metrics import roc_auc_score
+from tqdm import tqdm
 
 # set parameters
 try:
@@ -30,36 +29,40 @@ __all__ = ["DKTNet", "net_viz", "fit_f", "BP_LOSS_F", "eval_f"]
 
 
 class DKTNet(gluon.HybridBlock):
-    def __init__(self, ku_num, hidden_num, latent_dim, **kwargs):
-        super(DKTNet, self).__init__(**kwargs)
+    def __init__(self, ku_num, hidden_num, nettype="DKT", dropout=0.0, **kwargs):
+        super(DKTNet, self).__init__(kwargs.get("prefix"), kwargs.get("params"))
 
         self.length = None
+        self.nettype = nettype
 
         with self.name_scope():
-            self.embedding = gluon.nn.Embedding(2 * ku_num, latent_dim)
-            self.embedding_dropout = gluon.nn.Dropout(0.2)
+            if nettype == "EmbedDKT":
+                latent_dim = kwargs["latent_dim"]
+                embedding_dropout = kwargs.get("embedding_dropout", 0.2)
+                self.embedding = gluon.nn.Embedding(2 * ku_num, latent_dim)
+                self.embedding_dropout = gluon.nn.Dropout(embedding_dropout)
+
             self.lstm = gluon.rnn.HybridSequentialRNNCell()
             self.lstm.add(
                 gluon.rnn.LSTMCell(hidden_num),
             )
-            self.dropout = gluon.nn.Dropout(0.5)
-            self.nn = gluon.nn.Dense(ku_num)
-            # self.lstm.add(
-            #     gluon.rnn.LSTMCell(ku_num * 8),
-            # )
-            # self.lstm.add(gluon.rnn.DropoutCell(0.5))
-            # self.lstm.add(
-            #     gluon.rnn.LSTMCell(ku_num)
-            # )
+            self.dropout = gluon.nn.Dropout(dropout)
+            self.nn = gluon.nn.Dense(ku_num, flatten=False)
 
-    def hybrid_forward(self, F, responses, mask=None, merge_outputs=True, begin_state=None, *args, **kwargs):
+    def hybrid_forward(self, F, responses, mask=None, begin_state=None, *args, **kwargs):
         length = self.length if self.length else len(responses[0])
 
-        outputs, states = self.lstm.unroll(length, self.embedding_dropout(self.embedding(responses)),
-                                           begin_state=begin_state, merge_outputs=False, valid_length=mask)
+        if self.nettype == "EmbedDKT":
+            input_data = self.embedding_dropout(self.embedding(responses))
+        else:
+            input_data = responses
 
-        outputs = [self.nn(self.dropout(output)) for output in outputs]
-        output, _, _, _ = format_sequence(length, outputs, 'NTC', merge=merge_outputs)
+        outputs, states = self.lstm.unroll(length, input_data, begin_state=begin_state,
+                                           valid_length=mask)
+
+        # outputs = [self.nn(self.dropout(output)) for output in outputs]
+        # output, _, _, _ = format_sequence(length, outputs, 'NTC', merge=merge_outputs)
+        output = self.nn(self.dropout(outputs))
         output = F.sigmoid(output)
         return output, states
 
@@ -223,7 +226,7 @@ if __name__ == '__main__':
     cfg = Configuration(dataset="junyi")
 
     # generate sym
-    net = DKTNet(835, 900, 600)
+    net = DKTNet(835, 900)
 
     # # visualiztion check
     # net_viz(net, cfg, False)

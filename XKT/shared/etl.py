@@ -11,8 +11,13 @@ __all__ = ["extract", "transform", "etl"]
 
 
 def extract(data_src):
+    responses = []
     with open(data_src) as f:
-        responses = [json.loads(line) for line in tqdm(f, "reading data")]
+        for line in tqdm(f, "reading data from %s" % data_src):
+            data = json.loads(line)[:200]
+            if len(data) < 2:
+                continue
+            responses.append(data)
 
     return responses
 

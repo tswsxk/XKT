@@ -7,7 +7,7 @@ from __future__ import print_function
 import datetime
 import pathlib
 
-from mxnet import cpu
+from mxnet import cpu, gpu
 
 import longling.ML.MxnetHelper.glue.parser as parser
 from longling.ML.MxnetHelper.glue.parser import path_append, var2exp, eval_var
@@ -39,26 +39,31 @@ class Configuration(parser.Configuration):
     # 训练参数设置
     begin_epoch = 0
     end_epoch = 20
-    batch_size = 32
+    batch_size = 16
     save_epoch = 1
 
     # 优化器设置
-    optimizer, optimizer_params = get_optimizer_cfg(name="base")
-    lr_params = {
-        "learning_rate": 10e-3,
-        "step": 100,
-        "max_update_steps": get_update_steps(
-            update_epoch=10,
-            batches_per_epoch=1000,
-        ),
+    # optimizer, optimizer_params = get_optimizer_cfg(name="base")
+    optimizer = "adam"
+    optimizer_params = {
+        "learning_rate": 1e-3,
     }
+    lr_params = None
+    # {
+    #     "learning_rate": 10e-3,
+    #     "step": 100,
+    #     "max_update_steps": get_update_steps(
+    #         update_epoch=10,
+    #         batches_per_epoch=1000,
+    #     ),
+    # }
 
     # 更新保存参数，一般需要保持一致
     train_select = _select
     save_select = train_select
 
     # 运行设备
-    ctx = cpu()
+    ctx = gpu(0)
 
     # 用户变量
     num_buckets = 100

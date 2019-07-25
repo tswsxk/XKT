@@ -378,14 +378,13 @@ class Module(module.Module):
             even_split=False
         )
 
-        bp_loss = None
         with autograd.record():
             for _data in ctx_data:
                 bp_loss = fit_f(
                     net, _data, bp_loss_f, loss_function, loss_monitor
                 )
-            assert bp_loss is not None
-            bp_loss.backward()
+                assert bp_loss is not None
+                bp_loss.backward()
         trainer.step(batch_size)
 
     @staticmethod

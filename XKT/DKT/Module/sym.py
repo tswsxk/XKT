@@ -11,86 +11,34 @@ import os
 import mxnet as mx
 from longling.ML.MxnetHelper.toolkit.ctx import split_and_load
 from longling.ML.MxnetHelper.toolkit.viz import plot_network, VizError
-from mxnet import gluon, nd, autograd
+from mxnet import nd, autograd
 from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
+
+from XKT.shared import SLMLoss
 
 # set parameters
 try:
     # for python module
     from .etl import transform
     from .configuration import Configuration
+    from .net import *
 except (ImportError, SystemError):
     # for python script
     from etl import transform
     from configuration import Configuration
+    from net import *
 
-__all__ = ["DKTNet", "net_viz", "fit_f", "BP_LOSS_F", "eval_f"]
-
-
-class DKTNet(gluon.HybridBlock):
-    def __init__(self, ku_num, hidden_num, nettype="DKT", dropout=0.0, **kwargs):
-        super(DKTNet, self).__init__(kwargs.get("prefix"), kwargs.get("params"))
-
-        self.length = None
-        self.nettype = nettype
-
-        with self.name_scope():
-            if nettype == "EmbedDKT":
-                latent_dim = kwargs["latent_dim"]
-                embedding_dropout = kwargs.get("embedding_dropout", 0.2)
-                self.embedding = gluon.nn.Embedding(2 * ku_num, latent_dim)
-                self.embedding_dropout = gluon.nn.Dropout(embedding_dropout)
-
-            self.lstm = gluon.rnn.HybridSequentialRNNCell()
-            self.lstm.add(
-                gluon.rnn.LSTMCell(hidden_num),
-            )
-            self.dropout = gluon.nn.Dropout(dropout)
-            self.nn = gluon.nn.Dense(ku_num, flatten=False)
-
-    def hybrid_forward(self, F, responses, mask=None, begin_state=None, *args, **kwargs):
-        length = self.length if self.length else len(responses[0])
-
-        if self.nettype == "EmbedDKT":
-            input_data = self.embedding_dropout(self.embedding(responses))
-        else:
-            input_data = responses
-
-        outputs, states = self.lstm.unroll(length, input_data, begin_state=begin_state,
-                                           valid_length=mask)
-
-        # outputs = [self.nn(self.dropout(output)) for output in outputs]
-        # output, _, _, _ = format_sequence(length, outputs, 'NTC', merge=merge_outputs)
-        output = self.nn(self.dropout(outputs))
-        output = F.sigmoid(output)
-        return output, states
+__all__ = ["get_net", "net_viz", "fit_f", "BP_LOSS_F", "eval_f"]
 
 
-class DKTLoss(gluon.HybridBlock):
-    """
-    Notes
-    -----
-    The loss has been average, so when call the step method of trainer, batch_size should be 1
-    """
+def get_net(ku_num, hidden_num, nettype="DKT", dropout=0.0, **kwargs):
+    if nettype in {"EmbedDKT", "DKT"}:
+        return DKTNet(ku_num, hidden_num, nettype, dropout, **kwargs)
 
-    def __init__(self, **kwargs):
-        super(DKTLoss, self).__init__(**kwargs)
 
-        with self.name_scope():
-            self.loss = gluon.loss.SigmoidBinaryCrossEntropyLoss(from_sigmoid=True)
-
-    def hybrid_forward(self, F, pred_rs, pick_index, label, label_mask, *args, **kwargs):
-        pred_rs = F.slice(pred_rs, (None, None), (None, -1))
-        pred_rs = F.pick(pred_rs, pick_index)
-        weight_mask = F.squeeze(
-            F.SequenceMask(F.expand_dims(F.ones_like(pred_rs), -1), sequence_length=label_mask,
-                           use_sequence_length=True, axis=1)
-        )
-        loss = self.loss(pred_rs, label, weight_mask)
-        # loss = F.sum(loss, axis=-1)
-        loss = F.mean(loss)
-        return loss
+class Loss(SLMLoss):
+    pass
 
 
 def net_viz(_net, _cfg, view_tag=False, **kwargs):
@@ -184,7 +132,7 @@ def eval_f(_net, test_data, ctx=mx.cpu()):
     }
 
 
-BP_LOSS_F = {"DKTLoss": DKTLoss()}
+BP_LOSS_F = {"SLMLoss": Loss()}
 
 
 def numerical_check(_net, _cfg, ku_num):
@@ -226,10 +174,10 @@ if __name__ == '__main__':
     cfg = Configuration(dataset="junyi")
 
     # generate sym
-    net = DKTNet(835, 900)
+    net = get_net(835, 900)
 
     # # visualiztion check
-    # net_viz(net, cfg, False)
+    net_viz(net, cfg, False)
 
     # # numerical check
-    numerical_check(net, cfg, 835)
+    # numerical_check(net, cfg, 835)

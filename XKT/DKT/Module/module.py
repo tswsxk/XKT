@@ -10,7 +10,7 @@ from mxnet import autograd
 from longling.ML.MxnetHelper.glue import module
 from longling.ML.MxnetHelper.toolkit.ctx import split_and_load
 from .configuration import Configuration
-from .sym import DKTNet, fit_f, eval_f
+from .sym import get_net, fit_f, eval_f
 
 __all__ = ["Module"]
 
@@ -67,7 +67,7 @@ class Module(module.Module):
         )
         self.logger = configuration.logger
 
-        self.sym_gen = DKTNet
+        self.sym_gen = get_net
 
     def dump_configuration(self, filename=None):
         filename = filename if filename is not None \
@@ -385,7 +385,7 @@ class Module(module.Module):
                 )
                 assert bp_loss is not None
                 bp_loss.backward()
-        trainer.step(batch_size)
+        trainer.step(1)
 
     @staticmethod
     def split_and_load(ctx, *args, **kwargs):

@@ -72,11 +72,11 @@ def net_viz(_net, _cfg, view_tag=False, **kwargs):
         viz_net.length = 2
         viz_shape = {
             'q': (batch_size,) + (2,),
-            "r": (batch_size,) + (2,)
+            "r": (batch_size,) + (2,),
         }
         q = mx.sym.var("q")
         r = mx.sym.var("r")
-        sym = viz_net(q, r)[1][-1]
+        sym = viz_net(q, r)[0]
         plot_network(
             nn_symbol=sym,
             save_path=viz_dir,
@@ -108,8 +108,8 @@ def get_data_iter(_cfg, ku_num):
 
 
 def fit_f(_net, _data, bp_loss_f, loss_function, loss_monitor):
-    data, data_mask, label, pick_index, label_mask = _data
-    output, _ = _net(data, data_mask)
+    keys, values, data_mask, label, pick_index, label_mask = _data
+    output, _ = _net(keys, values, mask=data_mask)
     bp_loss = None
     for name, func in loss_function.items():
         loss = func(output, pick_index, label, label_mask)
@@ -133,8 +133,8 @@ def eval_f(_net, test_data, ctx=mx.cpu()):
             ctx, *batch_data,
             even_split=False
         )
-        for (data, data_mask, label, pick_index, label_mask) in ctx_data:
-            output, _ = _net(data, data_mask)
+        for (keys, values, data_mask, label, pick_index, label_mask) in ctx_data:
+            output, _ = _net(keys, values, mask=data_mask)
             output = mx.nd.slice(output, (None, None), (None, -1))
             output = mx.nd.pick(output, pick_index)
             pred = output.asnumpy().tolist()
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     )
 
     # # visualiztion check
-    net_viz(net, cfg, False)
+    # net_viz(net, cfg, False)
 
     # # numerical check
-    # numerical_check(net, cfg, 835)
+    numerical_check(net, cfg, 835)

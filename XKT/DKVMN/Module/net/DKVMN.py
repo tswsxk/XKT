@@ -3,36 +3,16 @@
 
 __all__ = ["DKVMN"]
 
+from mxnet import ndarray
 from longling.ML.MxnetHelper.gallery.layer import get_begin_state, format_sequence, mask_sequence_variable_length
 from mxnet import gluon
 
 
-class KVMNCell(gluon.rnn.HybridRecurrentCell):
-    # pylint: disable=too-many-instance-attributes
-    def __init__(self, memory_state_dim, memory_size,
-                 erase_signal_weight_initializer=None, erase_signal_bias_initializer=None,
-                 add_signal_weight_initializer=None, add_signal_bias_initializer=None,
-                 input_size=0, prefix=None, params=None):
+class KVMNCell(gluon.HybridBlock):
+    def __init__(self, memory_state_dim, memory_size, input_size=0, prefix=None, params=None, *args, **kwargs):
         super(KVMNCell, self).__init__(prefix=prefix, params=params)
 
         self._input_size = input_size
-
-        self.erase_signal_weight = self.params.get('erase_signal_weight', shape=(memory_state_dim, input_size),
-                                                   init=erase_signal_weight_initializer,
-                                                   allow_deferred_init=True)
-
-        self.erase_signal_bias = self.params.get('erase_signal_bias', shape=(memory_state_dim,),
-                                                 init=erase_signal_bias_initializer,
-                                                 allow_deferred_init=True)
-
-        self.add_signal_weight = self.params.get('add_signal_weight', shape=(memory_state_dim, input_size),
-                                                 init=add_signal_weight_initializer,
-                                                 allow_deferred_init=True)
-
-        self.add_signal_bias = self.params.get('add_signal_bias', shape=(memory_state_dim,),
-                                               init=add_signal_bias_initializer,
-                                               allow_deferred_init=True)
-
         self.memory_size = memory_size
         self.memory_state_dim = memory_state_dim
 
@@ -57,7 +37,18 @@ class KVMNCell(gluon.rnn.HybridRecurrentCell):
         correlation_weight = F.SoftmaxActivation(similarity_score)  # Shape: (batch_size, memory_size)
         return correlation_weight
 
-    def read(self, F, memory, control_input=None, read_weight=None):
+    def reset(self):
+        pass
+
+
+class KVMNReadCell(KVMNCell):
+    def __init__(self, memory_state_dim, memory_size, input_size=0, prefix=None, params=None):
+        super(KVMNReadCell, self).__init__(memory_state_dim, memory_size, input_size, prefix, params)
+
+    def read(self, memory, control_input=None, read_weight=None):
+        return self(memory, control_input, read_weight)
+
+    def hybrid_forward(self, F, memory, control_input=None, read_weight=None):
         """
 
         Parameters
@@ -79,7 +70,45 @@ class KVMNCell(gluon.rnn.HybridRecurrentCell):
                                  shape=(-1, self.memory_state_dim))  # Shape (batch_size, memory_state_dim)
         return read_content
 
-    def write(self, F, memory, control_input, write_weight=None):
+
+class KVMNWriteCell(KVMNCell):
+    def __init__(self, memory_state_dim, memory_size, input_size=0,
+                 erase_signal_weight_initializer=None, erase_signal_bias_initializer=None,
+                 add_signal_weight_initializer=None, add_signal_bias_initializer=None,
+                 prefix=None, params=None):
+        super(KVMNWriteCell, self).__init__(memory_state_dim, memory_size, input_size, prefix, params)
+        with self.name_scope():
+            self.erase_signal_weight = self.params.get('erase_signal_weight', shape=(memory_state_dim, input_size),
+                                                       init=erase_signal_weight_initializer,
+                                                       allow_deferred_init=True)
+
+            self.erase_signal_bias = self.params.get('erase_signal_bias', shape=(memory_state_dim,),
+                                                     init=erase_signal_bias_initializer,
+                                                     allow_deferred_init=True)
+
+            self.add_signal_weight = self.params.get('add_signal_weight', shape=(memory_state_dim, input_size),
+                                                     init=add_signal_weight_initializer,
+                                                     allow_deferred_init=True)
+
+            self.add_signal_bias = self.params.get('add_signal_bias', shape=(memory_state_dim,),
+                                                   init=add_signal_bias_initializer,
+                                                   allow_deferred_init=True)
+
+    def read(self, F, memory, control_input=None, read_weight=None):
+        if read_weight is None:
+            read_weight = self.addressing(F, control_input=control_input, memory=memory)
+        read_weight = F.Reshape(read_weight, shape=(-1, 1, self.memory_size))
+        read_content = F.Reshape(data=F.batch_dot(read_weight, memory, name=self.name + "read_content_batch_dot"),
+                                 # Shape (batch_size, 1, memory_state_dim)
+                                 shape=(-1, self.memory_state_dim))  # Shape (batch_size, memory_state_dim)
+        return read_content
+
+    def write(self, memory, control_input, write_weight):
+        return self(memory, control_input, write_weight)
+
+    def hybrid_forward(self, F, memory, control_input, write_weight,
+                       erase_signal_weight, erase_signal_bias, add_signal_weight, add_signal_bias,
+                       ):
         if write_weight is None:
             write_weight = self.addressing(
                 F, control_input=control_input, memory=memory
@@ -88,42 +117,41 @@ class KVMNCell(gluon.rnn.HybridRecurrentCell):
         # erase_signal  Shape (batch_size, memory_state_dim)
         erase_signal = F.FullyConnected(data=control_input,
                                         num_hidden=self.memory_state_dim,
-                                        weight=self.erase_signal_weight,
-                                        bias=self.erase_signal_bias)
+                                        weight=erase_signal_weight,
+                                        bias=erase_signal_bias)
         erase_signal = F.Activation(data=erase_signal, act_type='sigmoid', name=self.name + "_erase_signal")
         # add_signal  Shape (batch_size, memory_state_dim)
         add_signal = F.FullyConnected(data=control_input,
                                       num_hidden=self.memory_state_dim,
-                                      weight=self.add_signal_weight,
-                                      bias=self.add_signal_bias)
+                                      weight=add_signal_weight,
+                                      bias=add_signal_bias)
         add_signal = F.Activation(data=add_signal, act_type='tanh', name=self.name + "_add_signal")
         # erase_mult  Shape (batch_size, memory_size, memory_state_dim)
         erase_mult = 1 - F.batch_dot(F.Reshape(write_weight, shape=(-1, self.memory_size, 1)),
-                                     F.Reshape(erase_signal, shape=(-1, 1, self.memory_state_dim)))
+                                     F.Reshape(erase_signal, shape=(-1, 1, self.memory_state_dim)),
+                                     name=self.name + "_erase_mult")
 
         aggre_add_signal = F.batch_dot(F.Reshape(write_weight, shape=(-1, self.memory_size, 1)),
-                                       F.Reshape(add_signal, shape=(-1, 1, self.memory_state_dim)))
+                                       F.Reshape(add_signal, shape=(-1, 1, self.memory_state_dim)),
+                                       name=self.name + "_aggre_add_signal")
         new_memory = memory * erase_mult + aggre_add_signal
         return new_memory
 
-    def hybrid_forward(self, F, memory, control_input, read_weight=None, write_weight=None):
-        read_content = self.read(F, memory=memory, control_input=control_input, read_weight=read_weight)
-        next_memory = self.write(F, memory=memory, control_input=control_input, write_weight=write_weight)
-        return read_content, [next_memory, ]
 
-
-class DKVMNCell(gluon.rnn.HybridRecurrentCell):
+class DKVMNCell(gluon.HybridBlock):
     def __init__(self, key_memory_size, key_memory_state_dim, value_memory_size, value_memory_state_dim,
                  prefix=None, params=None):
         super(DKVMNCell, self).__init__(prefix, params)
+        self._modified = False
+        self.reset()
 
         with self.name_scope():
-            self.key_head = KVMNCell(
+            self.key_head = KVMNReadCell(
                 memory_size=key_memory_size,
                 memory_state_dim=key_memory_state_dim,
                 prefix=self.prefix + "->key_head"
             )
-            self.value_head = KVMNCell(
+            self.value_head = KVMNWriteCell(
                 memory_size=value_memory_size,
                 memory_state_dim=value_memory_state_dim,
                 prefix=self.prefix + "->value_head"
@@ -133,6 +161,84 @@ class DKVMNCell(gluon.rnn.HybridRecurrentCell):
         self.key_memory_state_dim = key_memory_state_dim
         self.value_memory_size = value_memory_size
         self.value_memory_state_dim = value_memory_state_dim
+
+    def forward(self, *args):
+        """Unrolls the recurrent cell for one time step.
+
+        Parameters
+        ----------
+        inputs : sym.Variable
+            Input symbol, 2D, of shape (batch_size * num_units).
+        states : list of sym.Variable
+            RNN state from previous step or the output of begin_state().
+
+        Returns
+        -------
+        output : Symbol
+            Symbol corresponding to the output from the RNN when unrolling
+            for a single time step.
+        states : list of Symbol
+            The new state of this RNN after this unrolling.
+            The type of this symbol is same as the output of `begin_state()`.
+            This can be used as an input state to the next time step
+            of this RNN.
+
+        See Also
+        --------
+        begin_state: This function can provide the states for the first time step.
+        unroll: This function unrolls an RNN for a given number of (>=1) time steps.
+        """
+        # pylint: disable= arguments-differ
+        self._counter += 1
+        return super(DKVMNCell, self).forward(*args)
+
+    def reset(self):
+        """Reset before re-using the cell for another graph."""
+        self._init_counter = -1
+        self._counter = -1
+        for cell in self._children.values():
+            cell.reset()
+
+    def begin_state(self, batch_size=0, func=ndarray.zeros, **kwargs):
+        """Initial state for this cell.
+
+        Parameters
+        ----------
+        func : callable, default symbol.zeros
+            Function for creating initial state.
+
+            For Symbol API, func can be `symbol.zeros`, `symbol.uniform`,
+            `symbol.var etc`. Use `symbol.var` if you want to directly
+            feed input as states.
+
+            For NDArray API, func can be `ndarray.zeros`, `ndarray.ones`, etc.
+        batch_size: int, default 0
+            Only required for NDArray API. Size of the batch ('N' in layout)
+            dimension of input.
+
+        **kwargs :
+            Additional keyword arguments passed to func. For example
+            `mean`, `std`, `dtype`, etc.
+
+        Returns
+        -------
+        states : nested list of Symbol
+            Starting states for the first RNN step.
+        """
+        assert not self._modified, \
+            "After applying modifier cells (e.g. ZoneoutCell) the base " \
+            "cell cannot be called directly. Call the modifier cell instead."
+        states = []
+        for info in self.state_info(batch_size):
+            self._init_counter += 1
+            if info is not None:
+                info.update(kwargs)
+            else:
+                info = kwargs
+            state = func(name='%sbegin_state_%d' % (self._prefix, self._init_counter),
+                         **info)
+            states.append(state)
+        return states
 
     def state_info(self, batch_size=0):
         return [
@@ -152,13 +258,12 @@ class DKVMNCell(gluon.rnn.HybridRecurrentCell):
         return read_content  # (batch_size, memory_state_dim)
 
     def write(self, F, write_weight, control_input, memory):
-        memory_value = self.value_head.write(F, control_input=control_input,
+        memory_value = self.value_head.write(control_input=control_input,
                                              memory=memory,
                                              write_weight=write_weight)
         return memory_value
 
-    def hybrid_forward(self, F, keys, values, memories):
-        key_memory, value_memory = memories
+    def hybrid_forward(self, F, keys, values, key_memory, value_memory):
         # Attention
         correlation_weight = self.attention(F, keys, key_memory)
 
@@ -170,7 +275,7 @@ class DKVMNCell(gluon.rnn.HybridRecurrentCell):
 
         return read_content, [key_memory, next_value_memory]
 
-    def unroll(self, length, keys, values, begin_memory=None, layout='NTC', merge_outputs=None,
+    def unroll(self, length, keys, values, key_memory, value_memory, layout='NTC', merge_outputs=None,
                valid_length=None):
         """Unrolls an RNN cell across time steps.
 
@@ -227,13 +332,14 @@ class DKVMNCell(gluon.rnn.HybridRecurrentCell):
 
         keys, axis, F, batch_size = format_sequence(length, keys, layout, False)
         values, axis, F, batch_size = format_sequence(length, values, layout, False)
-        begin_memory = get_begin_state(self, F, begin_memory, keys, batch_size)
 
-        states = begin_memory
+        states = F.broadcast_to(F.expand_dims(value_memory, axis=0),
+                                shape=(batch_size, self.value_memory_size, self.value_memory_state_dim))
         outputs = []
         all_states = []
         for i in range(length):
-            output, states = self(keys[i], values[i], states)
+            output, [_, new_states] = self(keys[i], values[i], key_memory, states)
+            states = new_states
             outputs.append(output)
             if valid_length is not None:
                 all_states.append(states)
@@ -244,6 +350,8 @@ class DKVMNCell(gluon.rnn.HybridRecurrentCell):
                                      axis=0)
                       for ele_list in zip(*all_states)]
             outputs = mask_sequence_variable_length(F, outputs, length, valid_length, axis, True)
+
+        # all_read_value_content = F.Concat(*outputs, num_args=length, dim=0)
         outputs, _, _, _ = format_sequence(length, outputs, layout, merge_outputs)
 
         return outputs, states
@@ -252,13 +360,26 @@ class DKVMNCell(gluon.rnn.HybridRecurrentCell):
 class DKVMN(gluon.HybridBlock):
     def __init__(self, ku_num, key_embedding_dim, value_embedding_dim, hidden_num,
                  key_memory_size, key_memory_state_dim, value_memory_size, value_memory_state_dim,
-                 nettype="DKVMN", dropout=0.0, **kwargs):
+                 nettype="DKVMN", dropout=0.0,
+                 key_memory_initializer=None, value_memory_initializer=None,
+                 **kwargs):
         super(DKVMN, self).__init__(kwargs.get("prefix"), kwargs.get("params"))
 
         self.length = None
         self.nettype = nettype
+        self._mask = None
 
         with self.name_scope():
+            self.key_memory = self.params.get(
+                'key_memory', shape=(key_memory_size, key_memory_state_dim),
+                init=key_memory_initializer,
+            )
+
+            self.value_memory = self.params.get(
+                'value_memory', shape=(value_memory_size, value_memory_state_dim),
+                init=value_memory_initializer,
+            )
+
             embedding_dropout = kwargs.get("embedding_dropout", 0.2)
             self.key_embedding = gluon.nn.Embedding(ku_num, key_embedding_dim)
             self.value_embedding = gluon.nn.Embedding(2 * ku_num, value_embedding_dim)
@@ -272,18 +393,26 @@ class DKVMN(gluon.HybridBlock):
             self.dropout = gluon.nn.Dropout(dropout)
             self.nn = gluon.nn.Dense(ku_num, flatten=False)
 
-    def hybrid_forward(self, F, questions, responses, mask=None, begin_state=None, *args, **kwargs):
+    def __call__(self, *args, mask=None):
+        self._mask = mask
+        result = super(DKVMN, self).__call__(*args)
+        self._mask = None
+        return result
+
+    def hybrid_forward(self, F, questions, responses, key_memory, value_memory, *args, **kwargs):
         length = self.length if self.length else len(responses[0])
 
         q_data = self.embedding_dropout(self.key_embedding(questions))
         r_data = self.embedding_dropout(self.value_embedding(responses))
 
-        read_contents, states = self.dkvmn.unroll(length, q_data, r_data, begin_memory=begin_state, merge_outputs=True)
+        read_contents, states = self.dkvmn.unroll(
+            length, q_data, r_data, key_memory, value_memory, merge_outputs=True
+        )
 
         input_embed_content = self.input_act(self.input_nn(q_data))
         read_content_embed = self.read_content_act(
             self.read_content_nn(
-                F.Concat(read_contents, input_embed_content, num_args=2, dim=1)
+                F.Concat(read_contents, input_embed_content, num_args=2, dim=2)
             )
         )
 

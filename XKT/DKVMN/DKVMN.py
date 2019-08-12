@@ -409,4 +409,15 @@ class DKVMN(object):
 
 
 if __name__ == '__main__':
-    DKVMN.run()
+    DKVMN.run(
+        [
+            "train",
+            "../../data/junyi/data/train",
+            "../../data/junyi/data/test",
+            "--hyper_params",
+            "ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=(900);"
+            "key_memory_size=int(20);value_memory_size=int(20);key_memory_state_dim=int(50);"
+            "value_memory_state_dim=int(200)",
+            "--ctx", "cpu(0)",
+        ]
+    )

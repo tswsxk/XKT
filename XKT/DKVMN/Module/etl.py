@@ -53,8 +53,12 @@ def transform(raw_data, params):
         batch_pick_index = [padder(pick_index) for pick_index in batch_pick_index]
         batch.append(
             [
-                mx.nd.array(batch_qs), mx.nd.array(batch_rs), mx.nd.array(data_mask),
-                mx.nd.array(batch_labels), mx.nd.array(batch_pick_index), mx.nd.array(label_mask)
+                mx.nd.array(batch_qs, dtype="float32"),
+                mx.nd.array(batch_rs, dtype="float32"),
+                mx.nd.array(data_mask),
+                mx.nd.array(batch_labels),
+                mx.nd.array(batch_pick_index),
+                mx.nd.array(label_mask)
             ]
         )
 

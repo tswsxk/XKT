@@ -44,7 +44,7 @@ class Configuration(parser.Configuration):
 
     # 优化器设置
     # optimizer, optimizer_params = get_optimizer_cfg(name="base")
-    optimizer = "adam"
+    optimizer = "rmsprop"
     optimizer_params = {
         "learning_rate": 1e-3,
     }
@@ -70,7 +70,8 @@ class Configuration(parser.Configuration):
     # 超参数
     hyper_params = {
     }
-
+    loss_params = {
+    }
     # 说明
     caption = ""
 

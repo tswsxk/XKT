@@ -35,6 +35,8 @@ __all__ = ["get_net", "net_viz", "fit_f", "BP_LOSS_F", "eval_f"]
 def get_net(ku_num, hidden_num, nettype="DKT", dropout=0.0, **kwargs):
     if nettype in {"EmbedDKT", "DKT"}:
         return DKTNet(ku_num, hidden_num, nettype, dropout, **kwargs)
+    else:
+        raise TypeError("Unknown nettype: %s" % nettype)
 
 
 class Loss(SLMLoss):
@@ -132,7 +134,7 @@ def eval_f(_net, test_data, ctx=mx.cpu()):
     }
 
 
-BP_LOSS_F = {"SLMLoss": Loss()}
+BP_LOSS_F = Loss
 
 
 def numerical_check(_net, _cfg, ku_num):
@@ -140,7 +142,7 @@ def numerical_check(_net, _cfg, ku_num):
 
     datas = get_data_iter(_cfg, ku_num)
 
-    bp_loss_f = BP_LOSS_F
+    bp_loss_f = {"SLMLoss": BP_LOSS_F(lw1=0.003)}
     loss_function = {}
     loss_function.update(bp_loss_f)
     from longling.ML.toolkit.monitor import MovingLoss
@@ -163,7 +165,7 @@ def numerical_check(_net, _cfg, ku_num):
                 )
             assert bp_loss is not None
             bp_loss.backward()
-            trainer.step(_cfg.batch_size)
+            trainer.step(1)
         print("epoch-%d: %s" % (epoch, list(loss_monitor.items())))
 
         if epoch % 1 == 0:
@@ -177,7 +179,7 @@ if __name__ == '__main__':
     net = get_net(835, 900)
 
     # # visualiztion check
-    net_viz(net, cfg, False)
+    # net_viz(net, cfg, False)
 
     # # numerical check
-    # numerical_check(net, cfg, 835)
+    numerical_check(net, cfg, 835)

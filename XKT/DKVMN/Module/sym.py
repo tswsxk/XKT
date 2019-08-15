@@ -178,7 +178,7 @@ def numerical_check(_net, _cfg, ku_num):
                 )
             assert bp_loss is not None
             bp_loss.backward()
-            trainer.step(_cfg.batch_size)
+            trainer.step(1)
         print("epoch-%d: %s" % (epoch, list(loss_monitor.items())))
 
         if epoch % 1 == 0:

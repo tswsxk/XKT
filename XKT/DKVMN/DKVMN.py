@@ -397,9 +397,10 @@ class DKVMN(object):
         cfg_parser.add_subcommand(cfg_parser.func_spec(DKVMN.test))
         cfg_parser.add_subcommand(cfg_parser.func_spec(DKVMN.load))
         if parse_args is not None:
-            cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args))
-        elif isinstance(parse_args, str):
-            cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args.split(" ")))
+            if isinstance(parse_args, str):
+                cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args.split(" ")))
+            else:
+                cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args))
         else:
             cfg_kwargs = cfg_parser()
         assert "subcommand" in cfg_kwargs

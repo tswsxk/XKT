@@ -63,7 +63,7 @@ class Configuration(parser.Configuration):
     save_select = train_select
 
     # 运行设备
-    ctx = gpu(0)
+    ctx = cpu(0)
 
     # 用户变量
     num_buckets = 100

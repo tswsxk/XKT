@@ -398,6 +398,8 @@ class DKVMN(object):
         cfg_parser.add_subcommand(cfg_parser.func_spec(DKVMN.load))
         if parse_args is not None:
             cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args))
+        elif isinstance(parse_args, str):
+            cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args.split(" ")))
         else:
             cfg_kwargs = cfg_parser()
         assert "subcommand" in cfg_kwargs
@@ -409,15 +411,4 @@ class DKVMN(object):
 
 
 if __name__ == '__main__':
-    DKVMN.run(
-        [
-            "train",
-            "../../data/junyi/data/train",
-            "../../data/junyi/data/test",
-            "--hyper_params",
-            "ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=(900);"
-            "key_memory_size=int(20);value_memory_size=int(20);key_memory_state_dim=int(50);"
-            "value_memory_state_dim=int(200)",
-            "--ctx", "cpu(0)",
-        ]
-    )
+    DKVMN.run()

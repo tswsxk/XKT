@@ -30,16 +30,11 @@ def transform(raw_data, params):
     for batch_idx in tqdm(batch_idxes, "batchify"):
         batch_qs = []
         batch_rs = []
-        batch_pick_index = []
         batch_labels = []
         for idx in batch_idx:
             batch_qs.append([question_one_hot(r) for r in responses[idx]])
             batch_rs.append([response_one_hot(r) for r in responses[idx]])
-            if len(responses[idx]) <= 1:
-                pick_index, labels = [], []
-            else:
-                pick_index, labels = zip(*[(r[0], 0 if r[1] <= 0 else 1) for r in responses[idx][1:]])
-            batch_pick_index.append(list(pick_index))
+            labels = [0 if r[1] <= 0 else 1 for r in responses[idx][:]]
             batch_labels.append(list(labels))
 
         max_len = max([len(rs) for rs in batch_rs])
@@ -50,14 +45,12 @@ def transform(raw_data, params):
         max_len = max([len(rs) for rs in batch_labels])
         padder = PadSequence(max_len, pad_val=0)
         batch_labels, label_mask = zip(*[(padder(labels), len(labels)) for labels in batch_labels])
-        batch_pick_index = [padder(pick_index) for pick_index in batch_pick_index]
         batch.append(
             [
                 mx.nd.array(batch_qs, dtype="float32"),
                 mx.nd.array(batch_rs, dtype="float32"),
                 mx.nd.array(data_mask),
                 mx.nd.array(batch_labels),
-                mx.nd.array(batch_pick_index),
                 mx.nd.array(label_mask)
             ]
         )

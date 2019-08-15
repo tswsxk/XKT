@@ -391,7 +391,12 @@ class DKVMN(gluon.HybridBlock):
             self.read_content_nn = gluon.nn.Dense(hidden_num, flatten=False)
             self.read_content_act = gluon.nn.Activation('tanh')
             self.dropout = gluon.nn.Dropout(dropout)
-            self.nn = gluon.nn.Dense(ku_num, flatten=False)
+            self.nn = gluon.nn.HybridSequential()
+            self.nn.add(
+                gluon.nn.Dense(ku_num, activation="tanh", flatten=False),
+                self.dropout,
+                gluon.nn.Dense(1, flatten=False),
+            )
 
     def __call__(self, *args, mask=None):
         self._mask = mask
@@ -416,7 +421,7 @@ class DKVMN(gluon.HybridBlock):
             )
         )
 
-        output = self.nn(self.dropout(read_content_embed))
+        output = self.nn(read_content_embed)
         output = F.sigmoid(output)
-
+        output = F.squeeze(output, axis=2)
         return output, states

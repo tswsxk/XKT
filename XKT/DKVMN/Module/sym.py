@@ -15,7 +15,7 @@ from mxnet import nd, autograd
 from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
 
-from XKT.shared import SLMLoss
+from XKT.shared import LMLoss
 
 # set parameters
 try:
@@ -50,7 +50,7 @@ def get_net(ku_num, key_embedding_dim, value_embedding_dim, hidden_num,
     )
 
 
-class Loss(SLMLoss):
+class Loss(LMLoss):
     pass
 
 
@@ -108,11 +108,11 @@ def get_data_iter(_cfg, ku_num):
 
 
 def fit_f(_net, _data, bp_loss_f, loss_function, loss_monitor):
-    keys, values, data_mask, label, pick_index, label_mask = _data
+    keys, values, data_mask, label, label_mask = _data
     output, _ = _net(keys, values, mask=data_mask)
     bp_loss = None
     for name, func in loss_function.items():
-        loss = func(output, pick_index, label, label_mask)
+        loss = func(output, label, label_mask)
         if name in bp_loss_f:
             bp_loss = loss
         loss_value = nd.mean(loss).asscalar()
@@ -133,10 +133,8 @@ def eval_f(_net, test_data, ctx=mx.cpu()):
             ctx, *batch_data,
             even_split=False
         )
-        for (keys, values, data_mask, label, pick_index, label_mask) in ctx_data:
+        for (keys, values, data_mask, label, label_mask) in ctx_data:
             output, _ = _net(keys, values, mask=data_mask)
-            output = mx.nd.slice(output, (None, None), (None, -1))
-            output = mx.nd.pick(output, pick_index)
             pred = output.asnumpy().tolist()
             label = label.asnumpy().tolist()
             for i, length in enumerate(label_mask.asnumpy().tolist()):
@@ -149,7 +147,7 @@ def eval_f(_net, test_data, ctx=mx.cpu()):
     }
 
 
-BP_LOSS_F = {"SLMLoss": Loss()}
+BP_LOSS_F = {"LMLoss": Loss()}
 
 
 def numerical_check(_net, _cfg, ku_num):

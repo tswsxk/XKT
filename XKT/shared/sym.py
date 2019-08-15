@@ -1,9 +1,10 @@
 # coding: utf-8
 # create by tongshiwei on 2019-7-30
 
-__all__ = ["SequenceLogisticMaskLoss"]
+__all__ = ["SequenceLogisticMaskLoss", "LogisticMaskLoss"]
 
 from mxnet import gluon
+
 
 class SequenceLogisticMaskLoss(gluon.HybridBlock):
     """
@@ -27,5 +28,28 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
         )
         loss = self.loss(pred_rs, label, weight_mask)
         # loss = F.sum(loss, axis=-1)
+        loss = F.mean(loss)
+        return loss
+
+
+class LogisticMaskLoss(gluon.HybridBlock):
+    """
+        Notes
+        -----
+        The loss has been average, so when call the step method of trainer, batch_size should be 1
+        """
+
+    def __init__(self, **kwargs):
+        super(LogisticMaskLoss, self).__init__(**kwargs)
+
+        with self.name_scope():
+            self.loss = gluon.loss.SigmoidBinaryCrossEntropyLoss(from_sigmoid=True)
+
+    def hybrid_forward(self, F, pred_rs, label, label_mask, *args, **kwargs):
+        weight_mask = F.squeeze(
+            F.SequenceMask(F.expand_dims(F.ones_like(pred_rs), -1), sequence_length=label_mask,
+                           use_sequence_length=True, axis=1)
+        )
+        loss = self.loss(pred_rs, label, weight_mask)
         loss = F.mean(loss)
         return loss

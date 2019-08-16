@@ -25,7 +25,10 @@ class DKTNet(gluon.HybridBlock):
                 gluon.rnn.LSTMCell(hidden_num),
             )
             self.dropout = gluon.nn.Dropout(dropout)
-            self.nn = gluon.nn.Dense(ku_num, flatten=False)
+            self.nn = gluon.nn.HybridSequential()
+            self.nn.add(
+                gluon.nn.Dense(ku_num, flatten=False)
+            )
 
     def hybrid_forward(self, F, responses, mask=None, begin_state=None, *args, **kwargs):
         length = self.length if self.length else len(responses[0])

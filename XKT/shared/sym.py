@@ -32,10 +32,10 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
             )
             diff = _weight_mask * diff
             w1 = F.mean(F.norm(diff, 1, -1)) / diff.shape[-1]
-            # w2 = F.mean(F.norm(diff, 2, -1)) / diff.shape[-1]
-            w2 = 0.0
-            w1 = w1 * self.lw1
-            # w2 = w2 * self.lw2
+            w2 = F.mean(F.norm(diff, 2, -1)) / diff.shape[-1]
+            # w2 = F.mean(F.sqrt(diff ** 2))
+            w1 = w1 * self.lw1 if self.lw1 > 0.0 else 0.0
+            w2 = w2 * self.lw2 if self.lw2 > 0.0 else 0.0
         else:
             w1 = 0.0
             w2 = 0.0
@@ -58,7 +58,7 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
             F.SequenceMask(F.expand_dims(F.ones_like(pred_rs), -1), sequence_length=label_mask,
                            use_sequence_length=True, axis=1)
         )
-        loss = self.loss(pred_rs, label, weight_mask)
+        loss = self.loss(pred_rs, label, )
         # loss = F.sum(loss, axis=-1)
         loss = F.mean(loss) + w1 + w2 + wr
         return loss

@@ -22,3 +22,6 @@ def test_etl():
     for _ in tqdm(etl("../data/junyi/student_log_kt.json.test", params)):
         pass
     assert True
+
+
+

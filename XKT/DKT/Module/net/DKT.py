@@ -12,6 +12,7 @@ class DKTNet(gluon.HybridBlock):
 
         self.length = None
         self.nettype = nettype
+        self.ku_num = ku_num
 
         with self.name_scope():
             if nettype == "EmbedDKT":
@@ -19,10 +20,13 @@ class DKTNet(gluon.HybridBlock):
                 embedding_dropout = kwargs.get("embedding_dropout", 0.2)
                 self.embedding = gluon.nn.Embedding(2 * ku_num, latent_dim)
                 self.embedding_dropout = gluon.nn.Dropout(embedding_dropout)
+                cell = gluon.rnn.LSTMCell
+            else:
+                cell = gluon.rnn.RNNCell
 
-            self.lstm = gluon.rnn.HybridSequentialRNNCell()
-            self.lstm.add(
-                gluon.rnn.LSTMCell(hidden_num),
+            self.rnn = gluon.rnn.HybridSequentialRNNCell()
+            self.rnn.add(
+                cell(hidden_num),
             )
             self.dropout = gluon.nn.Dropout(dropout)
             self.nn = gluon.nn.HybridSequential()
@@ -36,10 +40,10 @@ class DKTNet(gluon.HybridBlock):
         if self.nettype == "EmbedDKT":
             input_data = self.embedding_dropout(self.embedding(responses))
         else:
-            input_data = responses
+            input_data = F.one_hot(responses, depth=self.ku_num * 2)
 
-        outputs, states = self.lstm.unroll(length, input_data, begin_state=begin_state, merge_outputs=True,
-                                           valid_length=mask)
+        outputs, states = self.rnn.unroll(length, input_data, begin_state=begin_state, merge_outputs=True,
+                                          valid_length=mask)
 
         output = self.nn(self.dropout(outputs))
         output = F.sigmoid(output)

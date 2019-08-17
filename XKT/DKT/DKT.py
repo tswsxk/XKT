@@ -416,9 +416,9 @@ if __name__ == '__main__':
     # DKT.run(
     #     [
     #         "train", "../../data/junyi/data/train", "../../data/junyi/data/test",
-    #         "--workspace",  "EmbedDKT+",
+    #         "--workspace",  "DKT+",
     #         "--hyper_params",
-    #         "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(300);latent_dim=int(100);dropout=float(0.0)",
+    #         "nettype=DKT;ku_num=int(835);hidden_num=int(300);latent_dim=int(100);dropout=float(0.0)",
     #         "--loss_params", "lw2=float(1e-100)",
     #         "--dataset",  "junyi",
     #         "--ctx", "cpu(1)"

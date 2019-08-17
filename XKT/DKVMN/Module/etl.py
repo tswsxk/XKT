@@ -20,11 +20,11 @@ def transform(raw_data, params):
     batch_idxes = FixedBucketSampler([len(rs) for rs in responses], batch_size, num_buckets=num_buckets)
     batch = []
 
-    def response_one_hot(r):
+    def response_index(r):
         correct = 0 if r[1] <= 0 else 1
         return r[0] * 2 + correct
 
-    def question_one_hot(r):
+    def question_index(r):
         return r[0]
 
     for batch_idx in tqdm(batch_idxes, "batchify"):
@@ -32,8 +32,8 @@ def transform(raw_data, params):
         batch_rs = []
         batch_labels = []
         for idx in batch_idx:
-            batch_qs.append([question_one_hot(r) for r in responses[idx]])
-            batch_rs.append([response_one_hot(r) for r in responses[idx]])
+            batch_qs.append([question_index(r) for r in responses[idx]])
+            batch_rs.append([response_index(r) for r in responses[idx]])
             labels = [0 if r[1] <= 0 else 1 for r in responses[idx][:]]
             batch_labels.append(list(labels))
 

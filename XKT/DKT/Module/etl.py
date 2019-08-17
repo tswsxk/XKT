@@ -20,7 +20,7 @@ def transform(raw_data, params):
     batch_idxes = FixedBucketSampler([len(rs) for rs in responses], batch_size, num_buckets=num_buckets)
     batch = []
 
-    def one_hot(r):
+    def index(r):
         correct = 0 if r[1] <= 0 else 1
         return r[0] * 2 + correct
 
@@ -29,7 +29,7 @@ def transform(raw_data, params):
         batch_pick_index = []
         batch_labels = []
         for idx in batch_idx:
-            batch_rs.append([one_hot(r) for r in responses[idx]])
+            batch_rs.append([index(r) for r in responses[idx]])
             if len(responses[idx]) <= 1:
                 pick_index, labels = [], []
             else:
@@ -61,6 +61,7 @@ def etl(data_src, params):
 if __name__ == '__main__':
     from longling.lib.structure import AttrDict
     import os
+
     filename = "../../../data/junyi/data/test"
 
     print(os.path.abspath(filename))

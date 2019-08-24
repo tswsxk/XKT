@@ -10,11 +10,13 @@ __all__ = ["extract"]
 
 def extract(data_src):
     responses = []
+    step = 200
     with open(data_src) as f:
         for line in tqdm(f, "reading data from %s" % data_src):
-            data = json.loads(line)[:200]
-            if len(data) < 2:
-                continue
-            responses.append(data)
+            data = json.loads(line)
+            for i in range(0, len(data), step):
+                if len(data[i: i + step]) < 2:
+                    continue
+                responses.append(data[i: i + step])
 
     return responses

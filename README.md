@@ -3,6 +3,16 @@ Multiple Knowledge Tracing models implemented by mxnet-gluon.
 For convenient dataset downloading and preprocessing of knowledge tracing task, 
 visit [Edudata](https://github.com/bigdata-ustc/EduData) for handy api.
 
+# Tutorial
+```bash
+python3 DKT.py train ~/XKT/data/junyi_100/data/train_0 ~/XKT/data/junyi_100/data/valid_0 --root ~/XKT --workspace DKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --dataset junyi_100 --ctx "gpu(0)" --batch_size "int(16)"
+```
+
+```bash
+python3 DKT.py train ~/XKT/data/junyi_100/data/train_0 ~/XKT/data/junyi_100/data/valid_0 --root ~/XKT --workspace EmbedDKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5);latent_dim=int(600)" --dataset junyi_100 --ctx "gpu(0)" --batch_size "int(16)"
+```
+
+
 # Appendix
 
 ## Model

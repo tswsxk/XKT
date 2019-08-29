@@ -332,7 +332,7 @@ class DKT(object):
         cfg = mod.cfg if cfg is None else cfg
 
         mod.logger.info("loading data")
-        data = etl(data_src, params=cfg)
+        data = etl(cfg.var2val(data_src), params=cfg)
 
         return data
 

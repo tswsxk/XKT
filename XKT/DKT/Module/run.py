@@ -63,8 +63,6 @@ def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_resul
                 ctx=ctx,
             )
 
-        print("epoch-%d: %s" % (epoch, list(loss_monitor.items())))
-
         if epoch % 1 == 0:
             if epoch % 1 == 0:
                 print(

@@ -129,8 +129,7 @@ class DKT(object):
         from longling.lib.clock import Clock
         from longling.lib.utilog import config_logging
         from longling.ML.toolkit.formatter import MultiClassEvalFormatter as Formatter
-        from longling.ML.toolkit.monitor import MovingLoss, \
-            ConsoleProgressMonitor as ProgressMonitor
+        from longling.ML.toolkit.monitor import MovingLoss, ConsoleProgressMonitor as ProgressMonitor
 
         self.toolbox = {
             "monitor": dict(),
@@ -422,11 +421,11 @@ if __name__ == '__main__':
     DKT.run(
         [
             "train", "$data_dir/train", "$data_dir/test",
-            "--workspace",  "DKT",
+            "--workspace", "DKT",
             "--hyper_params",
             "nettype=DKT;ku_num=int(835);hidden_num=int(300);latent_dim=int(100);dropout=float(0.0)",
             "--loss_params", "lw2=float(1e-100)",
-            "--dataset",  "junyi",
+            "--dataset", "junyi",
             "--ctx", "cpu(0)"
         ]
     )

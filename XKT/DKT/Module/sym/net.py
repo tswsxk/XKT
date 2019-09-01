@@ -1,9 +1,22 @@
 # coding: utf-8
 # create by tongshiwei on 2019-7-30
 
-__all__ = ["DKTNet"]
+__all__ = ["get_net", "get_bp_loss"]
 
 from mxnet import gluon
+
+from XKT.shared import SLMLoss
+
+
+def get_net(ku_num, hidden_num, nettype="DKT", dropout=0.0, **kwargs):
+    if nettype in {"EmbedDKT", "DKT"}:
+        return DKTNet(ku_num, hidden_num, nettype, dropout, **kwargs)
+    else:
+        raise TypeError("Unknown nettype: %s" % nettype)
+
+
+def get_bp_loss(**kwargs):
+    return {"SMLoss": SLMLoss(**kwargs)}
 
 
 class DKTNet(gluon.HybridBlock):
@@ -23,6 +36,9 @@ class DKTNet(gluon.HybridBlock):
                 cell = gluon.rnn.LSTMCell
             else:
                 cell = gluon.rnn.RNNCell
+                # self.embedding = gluon.nn.HybridSequential()
+                # self.embedding.add(gluon.nn.Dense(hidden_num, flatten=False))
+                # self.embedding = lambda x: x
 
             self.rnn = gluon.rnn.HybridSequentialRNNCell()
             self.rnn.add(

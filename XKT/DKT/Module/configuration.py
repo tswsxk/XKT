@@ -11,7 +11,7 @@ import longling.ML.MxnetHelper.glue.parser as parser
 from longling.ML.MxnetHelper.glue.parser import path_append, var2exp, eval_var
 from longling.ML.MxnetHelper.toolkit.select_exp import all_params as _select
 from longling.lib.utilog import config_logging, LogLevel
-from mxnet import gpu
+from mxnet import cpu
 
 
 class Configuration(parser.Configuration):
@@ -60,7 +60,10 @@ class Configuration(parser.Configuration):
     save_select = train_select
 
     # 运行设备
-    ctx = gpu(0)
+    ctx = cpu(0)
+
+    # 工具包参数
+    toolbox_params = {}
 
     # 用户变量
     num_buckets = 100

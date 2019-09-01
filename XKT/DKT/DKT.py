@@ -54,7 +54,7 @@ class DKT(object):
         self.trainer = None
 
         if toolbox_init:
-            self.toolbox_init()
+            self.toolbox_init(**cfg.toolbox_params)
 
     @staticmethod
     def config(cfg=None, **kwargs):
@@ -107,7 +107,7 @@ class DKT(object):
         net_viz(net, mod.cfg)
 
     def set_loss(self, bp_loss_f=None, loss_function=None):
-        bp_loss_f = {"SLMLoss": BP_LOSS_F(**self.mod.cfg.loss_params)} if bp_loss_f is None else bp_loss_f
+        bp_loss_f = get_bp_loss(**self.mod.cfg.loss_params) if bp_loss_f is None else bp_loss_f
 
         assert bp_loss_f is not None and len(bp_loss_f) == 1
 
@@ -128,7 +128,7 @@ class DKT(object):
 
         from longling.lib.clock import Clock
         from longling.lib.utilog import config_logging
-        from longling.ML.toolkit.formatter import EvalFormatter as Formatter
+        from longling.ML.toolkit.formatter import MultiClassEvalFormatter as Formatter
         from longling.ML.toolkit.monitor import MovingLoss, \
             ConsoleProgressMonitor as ProgressMonitor
 
@@ -151,7 +151,12 @@ class DKT(object):
         timer = Clock()
 
         progress_monitor = ProgressMonitor(
-            loss_index=[name for name in self.loss_function],
+            indexes={
+                "Loss": [name for name in self.loss_function]
+            },
+            values={
+                "Loss": loss_monitor.losses
+            },
             end_epoch=cfg.end_epoch - 1,
             silent=informer_silent
         )
@@ -389,38 +394,39 @@ class DKT(object):
         return module
 
     @staticmethod
+    def get_parser():
+        cfg_parser = ConfigurationParser(
+            Configuration,
+            commands=[
+                DKT.config,
+                DKT.train, DKT.test,
+                DKT.inc_train,
+            ]
+        )
+        return cfg_parser
+
+    @staticmethod
     def run(parse_args=None):
-        cfg_parser = ConfigurationParser(Configuration)
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.config))
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.inc_train))
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.train))
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.test))
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKT.load))
-        if parse_args is not None:
-            if isinstance(parse_args, str):
-                cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args.split(" ")))
-            else:
-                cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args))
-        else:
-            cfg_kwargs = cfg_parser()
+        cfg_parser = DKT.get_parser()
+        cfg_kwargs = cfg_parser(parse_args)
+
         assert "subcommand" in cfg_kwargs
         subcommand = cfg_kwargs["subcommand"]
         del cfg_kwargs["subcommand"]
 
-        print(cfg_kwargs)
         eval("%s.%s" % (DKT.__name__, subcommand))(**cfg_kwargs)
 
 
 if __name__ == '__main__':
-    DKT.run()
-    # DKT.run(
-    #     [
-    #         "train", "../../data/junyi/data/train", "../../data/junyi/data/test",
-    #         "--workspace",  "DKT+",
-    #         "--hyper_params",
-    #         "nettype=DKT;ku_num=int(835);hidden_num=int(300);latent_dim=int(100);dropout=float(0.0)",
-    #         "--loss_params", "lw2=float(1e-100)",
-    #         "--dataset",  "junyi",
-    #         "--ctx", "cpu(1)"
-    #     ]
-    # )
+    # DKT.run()
+    DKT.run(
+        [
+            "train", "$data_dir/train", "$data_dir/test",
+            "--workspace",  "DKT",
+            "--hyper_params",
+            "nettype=DKT;ku_num=int(835);hidden_num=int(300);latent_dim=int(100);dropout=float(0.0)",
+            "--loss_params", "lw2=float(1e-100)",
+            "--dataset",  "junyi",
+            "--ctx", "cpu(0)"
+        ]
+    )

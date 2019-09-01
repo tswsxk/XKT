@@ -23,8 +23,8 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
 
     def hybrid_forward(self, F, pred_rs, pick_index, label, label_mask, *args, **kwargs):
         if self.lw1 > 0.0 or self.lw2 > 0.0:
-            post_pred_rs = F.slice(pred_rs, (None, 1), (None, None))
-            pre_pred_rs = F.slice(pred_rs, (None, None), (None, -1))
+            pre_pred_rs = F.slice_axis(pred_rs, axis=1, begin=0, end=-1)
+            post_pred_rs = F.slice_axis(pred_rs, axis=1, begin=1, end=None)
             diff = post_pred_rs - pre_pred_rs
             _weight_mask = F.squeeze(
                 F.SequenceMask(F.expand_dims(F.ones_like(pre_pred_rs), -1), sequence_length=label_mask,
@@ -41,7 +41,7 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
             w2 = 0.0
 
         if self.lwr > 0.0:
-            re_pred_rs = F.slice(pred_rs, (None, 1), (None, None))
+            re_pred_rs = F.slice_axis(pred_rs, axis=1, begin=1, end=None)
             re_pred_rs = F.pick(re_pred_rs, pick_index)
             re_weight_mask = F.squeeze(
                 F.SequenceMask(F.expand_dims(F.ones_like(re_pred_rs), -1), sequence_length=label_mask,
@@ -52,13 +52,13 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
         else:
             wr = 0.0
 
-        pred_rs = F.slice(pred_rs, (None, None), (None, -1))
+        pred_rs = F.slice_axis(pred_rs, axis=1, begin=0, end=-1)
         pred_rs = F.pick(pred_rs, pick_index)
         weight_mask = F.squeeze(
             F.SequenceMask(F.expand_dims(F.ones_like(pred_rs), -1), sequence_length=label_mask,
                            use_sequence_length=True, axis=1)
         )
-        loss = self.loss(pred_rs, label, )
+        loss = self.loss(pred_rs, label, weight_mask)
         # loss = F.sum(loss, axis=-1)
         loss = F.mean(loss) + w1 + w2 + wr
         return loss

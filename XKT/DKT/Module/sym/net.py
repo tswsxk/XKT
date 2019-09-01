@@ -16,7 +16,7 @@ def get_net(ku_num, hidden_num, nettype="DKT", dropout=0.0, **kwargs):
 
 
 def get_bp_loss(**kwargs):
-    return {"SMLoss": SLMLoss(**kwargs)}
+    return {"SLMLoss": SLMLoss(**kwargs)}
 
 
 class DKTNet(gluon.HybridBlock):

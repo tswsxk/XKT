@@ -11,6 +11,6 @@ setup(
         'mxnet',
         'gluonnlp',
         'sklearn',
-        'longling=1.1.0',
+        'longling==1.1.1',
     ]  # And any other dependencies foo needs
 )

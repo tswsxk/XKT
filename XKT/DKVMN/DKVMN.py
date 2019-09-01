@@ -54,7 +54,7 @@ class DKVMN(object):
         self.trainer = None
 
         if toolbox_init:
-            self.toolbox_init()
+            self.toolbox_init(**cfg.toolbox_params)
 
     @staticmethod
     def config(cfg=None, **kwargs):
@@ -107,7 +107,7 @@ class DKVMN(object):
         net_viz(net, mod.cfg)
 
     def set_loss(self, bp_loss_f=None, loss_function=None):
-        bp_loss_f = BP_LOSS_F if bp_loss_f is None else bp_loss_f
+        bp_loss_f = get_bp_loss(**self.mod.cfg.loss_params) if bp_loss_f is None else bp_loss_f
 
         assert bp_loss_f is not None and len(bp_loss_f) == 1
 
@@ -129,8 +129,7 @@ class DKVMN(object):
         from longling.lib.clock import Clock
         from longling.lib.utilog import config_logging
         from longling.ML.toolkit.formatter import EvalFormatter as Formatter
-        from longling.ML.toolkit.monitor import MovingLoss, \
-            ConsoleProgressMonitor as ProgressMonitor
+        from longling.ML.toolkit.monitor import MovingLoss, ConsoleProgressMonitor as ProgressMonitor
 
         self.toolbox = {
             "monitor": dict(),
@@ -151,7 +150,12 @@ class DKVMN(object):
         timer = Clock()
 
         progress_monitor = ProgressMonitor(
-            loss_index=[name for name in self.loss_function],
+            indexes={
+                "Loss": [name for name in self.loss_function]
+            },
+            values={
+                "Loss": loss_monitor.losses
+            },
             end_epoch=cfg.end_epoch - 1,
             silent=informer_silent
         )
@@ -412,4 +416,17 @@ class DKVMN(object):
 
 
 if __name__ == '__main__':
-    DKVMN.run()
+    # DKVMN.run()
+    DKVMN.run(
+        [
+            "train", "$data_dir/train", "$data_dir/test",
+            "--workspace", "DKVMN",
+            "--hyper_params",
+            "nettype=DKVMN;ku_num=int(835);hidden_num=int(900);key_embedding_dim=int(50);value_embedding_dim=int(200);"
+            "key_memory_size=int(20);value_memory_size=int(20);"
+            "key_memory_state_dim=int(50);value_memory_state_dim=int(200);"
+            "dropout=float(0.5)",
+            "--dataset", "junyi",
+            "--ctx", "cpu(0)"
+        ]
+    )

@@ -63,6 +63,10 @@ def etl(data_src, params):
     return transform(raw_data, params)
 
 
+def pseudo_data_iter(_cfg):
+    return transform(pseudo_data_generation(_cfg), _cfg)
+
+
 if __name__ == '__main__':
     from longling.lib.structure import AttrDict
     import os

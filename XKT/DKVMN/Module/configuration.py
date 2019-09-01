@@ -67,7 +67,9 @@ class Configuration(parser.Configuration):
     # 超参数
     hyper_params = {
     }
+    loss_params = {
 
+    }
     # 说明
     caption = ""
 

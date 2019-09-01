@@ -1,11 +1,35 @@
 # coding: utf-8
 # create by tongshiwei on 2019-7-30
 
-__all__ = ["DKVMN"]
+__all__ = ["get_net", "get_bp_loss"]
 
-from mxnet import ndarray
-from longling.ML.MxnetHelper.gallery.layer import get_begin_state, format_sequence, mask_sequence_variable_length
+from longling.ML.MxnetHelper.gallery.layer import format_sequence, mask_sequence_variable_length
 from mxnet import gluon
+from mxnet import ndarray
+
+from XKT.shared import LMLoss
+
+
+def get_net(ku_num, key_embedding_dim, value_embedding_dim, hidden_num,
+            key_memory_size, key_memory_state_dim, value_memory_size, value_memory_state_dim,
+            nettype="DKVMN", dropout=0.0, **kwargs):
+    return DKVMN(
+        ku_num=ku_num,
+        key_embedding_dim=key_embedding_dim,
+        value_embedding_dim=value_embedding_dim,
+        hidden_num=hidden_num,
+        key_memory_size=key_memory_size,
+        key_memory_state_dim=key_memory_state_dim,
+        value_memory_size=value_memory_size,
+        value_memory_state_dim=value_memory_state_dim,
+        nettype=nettype,
+        dropout=dropout,
+        **kwargs
+    )
+
+
+def get_bp_loss(**kwargs):
+    return {"LMLoss": LMLoss(**kwargs)}
 
 
 class KVMNCell(gluon.HybridBlock):
@@ -39,6 +63,9 @@ class KVMNCell(gluon.HybridBlock):
 
     def reset(self):
         pass
+
+    def hybrid_forward(self, F, control_input, memory, *args, **kwargs):
+        return self.addressing(F, control_input, memory)
 
 
 class KVMNReadCell(KVMNCell):

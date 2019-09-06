@@ -393,25 +393,28 @@ class DKVMN(object):
         return module
 
     @staticmethod
+    def get_parser():
+        cfg_parser = ConfigurationParser(
+            Configuration,
+            commands=[
+                DKVMN.config,
+                DKVMN.train, DKVMN.test,
+                DKVMN.inc_train,
+            ]
+        )
+        return cfg_parser
+
+    @staticmethod
     def run(parse_args=None):
-        cfg_parser = ConfigurationParser(Configuration)
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKVMN.config))
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKVMN.inc_train))
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKVMN.train))
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKVMN.test))
-        cfg_parser.add_subcommand(cfg_parser.func_spec(DKVMN.load))
-        if parse_args is not None:
-            if isinstance(parse_args, str):
-                cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args.split(" ")))
-            else:
-                cfg_kwargs = cfg_parser.parse(cfg_parser.parse_args(parse_args))
-        else:
-            cfg_kwargs = cfg_parser()
-        assert "subcommand" in cfg_kwargs
+        cfg_parser = DKVMN.get_parser()
+        cfg_kwargs = cfg_parser(parse_args)
+
+        if "subcommand" not in cfg_kwargs:
+            cfg_parser.print_help()
+            return
         subcommand = cfg_kwargs["subcommand"]
         del cfg_kwargs["subcommand"]
 
-        print(cfg_kwargs)
         eval("%s.%s" % (DKVMN.__name__, subcommand))(**cfg_kwargs)
 
 

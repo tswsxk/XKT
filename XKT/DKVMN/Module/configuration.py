@@ -100,7 +100,7 @@ class Configuration(parser.Configuration):
 
         params = self.class_var
         if params_json:
-            params.update(self.load_cfg(cfg_path=params_json))
+            params.update(self.load_cfg(params_json=params_json))
         params.update(**kwargs)
 
         for param, value in params.items():

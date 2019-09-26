@@ -128,7 +128,7 @@ class DKVMN(object):
 
         from longling.lib.clock import Clock
         from longling.lib.utilog import config_logging
-        from longling.ML.toolkit.formatter import EvalFormatter as Formatter
+        from longling.ML.toolkit.formatter import MultiClassEvalFormatter as Formatter
         from longling.ML.toolkit.monitor import MovingLoss, ConsoleProgressMonitor as ProgressMonitor
 
         self.toolbox = {
@@ -419,17 +419,17 @@ class DKVMN(object):
 
 
 if __name__ == '__main__':
-    # DKVMN.run()
-    DKVMN.run(
-        [
-            "train", "$data_dir/train", "$data_dir/test",
-            "--workspace", "DKVMN",
-            "--hyper_params",
-            "nettype=DKVMN;ku_num=int(835);hidden_num=int(900);key_embedding_dim=int(50);value_embedding_dim=int(200);"
-            "key_memory_size=int(20);value_memory_size=int(20);"
-            "key_memory_state_dim=int(50);value_memory_state_dim=int(200);"
-            "dropout=float(0.5)",
-            "--dataset", "junyi",
-            "--ctx", "cpu(0)"
-        ]
-    )
+    DKVMN.run()
+    # DKVMN.run(
+    #     [
+    #         "train", "$data_dir/train", "$data_dir/test",
+    #         "--workspace", "DKVMN",
+    #         "--hyper_params",
+    #         "nettype=DKVMN;ku_num=int(835);hidden_num=int(900);key_embedding_dim=int(50);value_embedding_dim=int(200);"
+    #         "key_memory_size=int(20);value_memory_size=int(20);"
+    #         "key_memory_state_dim=int(50);value_memory_state_dim=int(200);"
+    #         "dropout=float(0.5)",
+    #         "--dataset", "junyi",
+    #         "--ctx", "cpu(0)"
+    #     ]
+    # )

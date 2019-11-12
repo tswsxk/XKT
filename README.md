@@ -3,6 +3,15 @@ Multiple Knowledge Tracing models implemented by mxnet-gluon.
 For convenient dataset downloading and preprocessing of knowledge tracing task, 
 visit [Edudata](https://github.com/bigdata-ustc/EduData) for handy api.
 
+# Performance in well-known Dataset
+
+TBA
+
+# Notice
+
+The DKT in current version performs very poorly compared with Pytroch and Tensorflow version.
+ 
+
 # Tutorial
 For DKT
 ```bash
@@ -27,15 +36,17 @@ python3 DKT.py train ~/XKT/data/\$dataset/data/train ~/XKT/data/\$dataset/data/t
 
 
 For DKVMN
-```bash
+```shell script
 python3 DKVMN.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=DKVMN;ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=int(50);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --ctx="gpu(5)" --caption 0 --workspace DKVMN --dataset="junyi_100"
 python3 DKVMN.py train ~/XKT/data/junyi_100/data/train_0 ~/XKT/data/junyi_100/data/valid_0 --root ~/XKT --workspace DKVMN  --hyper_params "nettype=DKVMN;ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=int(50);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --dataset junyi_100 --ctx "gpu(0)" --batch_size "int(16)"
 ```
 
+```shell script
 export PYTHONPATH=$PYTHONPATH:~/XKT
 python3 DKT.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --caption 0 --workspace EmbedDKT_0 --dataset="junyi_100"
 python3 DKT.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --loss_params "lwr=float(0.1), lw1=float(0.003), lw2=float(3.0)" --ctx="gpu(0)" --caption 0 --workspace EmbedDKT_0 --dataset="junyi_100"
 python3 DKT.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --loss_params "lwr=float(0.1);lw1=float(0.003);lw2=float(3.0)" --ctx="gpu(0)" --caption 0 --workspace DKTPlus_0 --dataset="junyi_100"
+```
 
 # Appendix
 

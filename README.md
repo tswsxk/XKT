@@ -13,41 +13,97 @@ The DKT in current version performs very poorly compared with Pytroch and Tensor
  
 
 # Tutorial
-For DKT
-```bash
-python3 DKT.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --caption 0 --workspace DKT --dataset="junyi_100"
-python3 DKT.py train ~/XKT/data/junyi_100/data/train_0 ~/XKT/data/junyi_100/data/valid_0 --root ~/XKT --workspace DKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --dataset junyi_100 --ctx "gpu(0)" --batch_size "int(16)"
+
+## Installation
+
+1. First get the repo in your computer by `git` or any way you like.
+2. Suppose you create the project under your own `home` directory, then you can use use 
+    1. `pip install -e .` to install the package, or
+    2. `export PYTHONPATH=$PYTHONPATH:~/XKT`
+
+## Preliminary
+As an example, suppose you create the project under your own `home` directory 
+and create a `data` directory to store the data (like `train` and `test`) and model.
+The toc of the project is looked like as follows:
+```text
+└── XKT/                            <- root
+    ├── data/
+    │   └── dataset/                <- data_dir
+    │        ├── workspace/         <- workspace, the model file like parameters file will be stored here
+    │        ├── train
+    │        └── test
+    ├── ...
+    └── XKT/
 ```
+Certainly, the structure is not a strict limitation, you can also specify the `data` position as you want. 
+Here is just a toy example :-).  
 
-```bash
-python3 DKT.py train ~/XKT/data/\$dataset/data/train ~/XKT/data/\$dataset/data/test --root ~/XKT --workspace DKT  --hyper_params "nettype=DKT;ku_num=int(146);hidden_num=int(200);dropout=float(0.5)" --dataset assistment0910c --batch_size "int(16)" --ctx "gpu(0)" --optimizer_params "learning_rate=float(1e-2)"
+### Data Format
+In `XKT`, all sequence is store in `json` format, such as:
+```json
+[[419, 1], [419, 1], [419, 1], [665, 0], [665, 0]]
 ```
+Each item in the sequence represent one interaction. The first element of the item is the exercise id 
+and the second one indicates whether the learner correctly answer the exercise, 0 for wrongly while 1 for correctly  
+One line, one `json` record, which is corresponded to a learner's interaction sequence.
 
+A demo loading program is presented as follows:
+```python
+import json
+from tqdm import tqdm
 
-For EmbedDKT
-```bash
-python3 DKT.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --caption 0 --workspace EmbedDKT_0 --dataset="junyi_100"
-python3 DKT.py train ~/XKT/data/junyi_100/data/train_0 ~/XKT/data/junyi_100/data/valid_0 --root ~/XKT --workspace EmbedDKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --dataset junyi_100 --batch_size "int(16)" --ctx "gpu(0)" 
+def extract(data_src):
+    responses = []
+    step = 200
+    with open(data_src) as f:
+        for line in tqdm(f, "reading data from %s" % data_src):
+            data = json.loads(line)
+            for i in range(0, len(data), step):
+                if len(data[i: i + step]) < 2:
+                    continue
+                responses.append(data[i: i + step])
+
+    return responses
 ```
+The above program can be found in `~/XKT/XKT/shared/etl.py`
 
-```bash
-python3 DKT.py train ~/XKT/data/\$dataset/data/train ~/XKT/data/\$dataset/data/test --root ~/XKT --workspace EmbedDKT  --hyper_params "nettype=EmbedDKT;ku_num=int(124);hidden_num=int(200);latent_dim=int(85);dropout=float(0.5)" --dataset assistment0910c --batch_size "int(16)" --ctx "gpu(0)"
+#### Convert other format into json sequence
+There is another common-seen format in KT task:
+```text
+
 ```
-
-
-For DKVMN
+By using the cli tools from `EduData`, we can quickly convert the data in the above-mentioned format into json sequence.
 ```shell script
-python3 DKVMN.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=DKVMN;ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=int(50);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --ctx="gpu(5)" --caption 0 --workspace DKVMN --dataset="junyi_100"
-python3 DKVMN.py train ~/XKT/data/junyi_100/data/train_0 ~/XKT/data/junyi_100/data/valid_0 --root ~/XKT --workspace DKVMN  --hyper_params "nettype=DKVMN;ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=int(50);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --dataset junyi_100 --ctx "gpu(0)" --batch_size "int(16)"
-```
 
+```
+Refer to [Edudata Documentation]() for installation and usage tutorial.
+
+### General Command Format
+All command to invoke the model has the same cli canonical form:
 ```shell script
-export PYTHONPATH=$PYTHONPATH:~/XKT
-python3 DKT.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --caption 0 --workspace EmbedDKT_0 --dataset="junyi_100"
-python3 DKT.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --loss_params "lwr=float(0.1), lw1=float(0.003), lw2=float(3.0)" --ctx="gpu(0)" --caption 0 --workspace EmbedDKT_0 --dataset="junyi_100"
-python3 DKT.py train \$data_dir/train_\$caption \$data_dir/valid_\$caption --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --loss_params "lwr=float(0.1);lw1=float(0.003);lw2=float(3.0)" --ctx="gpu(0)" --caption 0 --workspace DKTPlus_0 --dataset="junyi_100"
+python Model.py $subcommand $parameters1 $parameters2 ...
+```
+There are several options for the subcommand, use `--help` to see more options and the corresponding parameters:
+```shell script
+python Model.py --help
+python Model.py $subcommand --help 
 ```
 
+## DKT
+```shell script
+python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --workspace DKT --dataset="junyi_100"
+```
+
+
+## EmbedDKT
+```shell script
+python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --workspace EmbedDKT --dataset="junyi_100" 
+```
+
+## DKVMN
+```shell script
+python3 DKVMN.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=DKVMN;ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=int(50);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --ctx="gpu(0)" --workspace DKVMN --dataset="junyi_100"
+```
 # Appendix
 
 ## Model

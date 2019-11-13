@@ -73,35 +73,35 @@ There is another common-seen format in KT task:
 
 ```
 By using the cli tools from `EduData`, we can quickly convert the data in the above-mentioned format into json sequence.
-```shell script
+```shell
 
 ```
 Refer to [Edudata Documentation]() for installation and usage tutorial.
 
 ### General Command Format
 All command to invoke the model has the same cli canonical form:
-```shell script
+```shell
 python Model.py $subcommand $parameters1 $parameters2 ...
 ```
 There are several options for the subcommand, use `--help` to see more options and the corresponding parameters:
-```shell script
+```shell
 python Model.py --help
 python Model.py $subcommand --help 
 ```
 
 ## DKT
-```shell script
+```shell
 python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --workspace DKT --dataset="junyi_100"
 ```
 
 
 ## EmbedDKT
-```shell script
+```shell
 python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --workspace EmbedDKT --dataset="junyi_100" 
 ```
 
 ## DKVMN
-```shell script
+```shell
 python3 DKVMN.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=DKVMN;ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=int(50);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --ctx="gpu(0)" --workspace DKVMN --dataset="junyi_100"
 ```
 # Appendix

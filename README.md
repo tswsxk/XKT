@@ -1,27 +1,29 @@
 # XKT
 Multiple Knowledge Tracing models implemented by mxnet-gluon. 
 For convenient dataset downloading and preprocessing of knowledge tracing task, 
-visit [Edudata](https://github.com/bigdata-ustc/EduData) for handy api.
+visit [Edudata](visit https://base.ustc.edu.cn for more of our works.) for handy api.
 
-# Performance in well-known Dataset
+Visit https://base.ustc.edu.cn for more of our works.
+
+## Performance in well-known Dataset
 
 TBA
 
-# Notice
+## Notice
 
 The DKT in current version performs very poorly compared with Pytroch and Tensorflow version.
  
 
-# Tutorial
+## Tutorial
 
-## Installation
+### Installation
 
 1. First get the repo in your computer by `git` or any way you like.
 2. Suppose you create the project under your own `home` directory, then you can use use 
     1. `pip install -e .` to install the package, or
     2. `export PYTHONPATH=$PYTHONPATH:~/XKT`
 
-## Preliminary
+### Preliminary
 As an example, suppose you create the project under your own `home` directory 
 and create a `data` directory to store the data (like `train` and `test`) and model.
 The toc of the project is looked like as follows:
@@ -38,7 +40,7 @@ The toc of the project is looked like as follows:
 Certainly, the structure is not a strict limitation, you can also specify the `data` position as you want. 
 Here is just a toy example :-).  
 
-### Data Format
+#### Data Format
 In `XKT`, all sequence is store in `json` format, such as:
 ```json
 [[419, 1], [419, 1], [419, 1], [665, 0], [665, 0]]
@@ -67,7 +69,7 @@ def extract(data_src):
 ```
 The above program can be found in `~/XKT/XKT/shared/etl.py`
 
-#### Convert other format into json sequence
+##### Convert other format into json sequence
 There is another common-seen format in KT task:
 ```text
 
@@ -76,9 +78,9 @@ By using the cli tools from `EduData`, we can quickly convert the data in the ab
 ```shell
 
 ```
-Refer to [Edudata Documentation]() for installation and usage tutorial.
+Refer to [Edudata Documentation](visit https://base.ustc.edu.cn for more of our works.) for installation and usage tutorial.
 
-### General Command Format
+#### General Command Format
 All command to invoke the model has the same cli canonical form:
 ```shell
 python Model.py $subcommand $parameters1 $parameters2 ...
@@ -89,24 +91,28 @@ python Model.py --help
 python Model.py $subcommand --help 
 ```
 
-## DKT
+The cli tools is constructed based on 
+[longling ConfigurationParser](https://longling.readthedocs.io/zh/latest/submodule/lib/index.html#module-longling.lib.parser). 
+Refer to the [glue documentation(TBA)] for detailed usage.
+
+### DKT
 ```shell
 python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --workspace DKT --dataset="junyi_100"
 ```
 
 
-## EmbedDKT
+### EmbedDKT
 ```shell
 python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --workspace EmbedDKT --dataset="junyi_100" 
 ```
 
-## DKVMN
+### DKVMN
 ```shell
 python3 DKVMN.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=DKVMN;ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=int(50);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --ctx="gpu(0)" --workspace DKVMN --dataset="junyi_100"
 ```
-# Appendix
+## Appendix
 
-## Model
+### Model
 There are a lot of models that implements different knowledge tracing models in different frameworks, 
 the following are the url of those implemented by python (the stared is the authors version):
 
@@ -118,7 +124,9 @@ the following are the url of those implemented by python (the stared is the auth
 
 * KTM [[libfm]](https://github.com/jilljenn/ktm)
 
-## Dataset
+* EKT[[pytorch*]](https://github.com/bigdata-ustc/ekt)
+
+### Dataset
 There are some datasets which are suitable for this task, and the followings are the url:
 
 * [KDD Cup 2010](https://pslcdatashop.web.cmu.edu/KDDCup/downloads.jsp)

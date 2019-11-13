@@ -1,7 +1,7 @@
 # XKT
 Multiple Knowledge Tracing models implemented by mxnet-gluon. 
 For convenient dataset downloading and preprocessing of knowledge tracing task, 
-visit [Edudata](visit https://base.ustc.edu.cn for more of our works.) for handy api.
+visit [Edudata](https://github.com/bigdata-ustc/EduData) for handy api.
 
 Visit https://base.ustc.edu.cn for more of our works.
 

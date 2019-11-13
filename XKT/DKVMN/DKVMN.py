@@ -418,6 +418,10 @@ class DKVMN(object):
         eval("%s.%s" % (DKVMN.__name__, subcommand))(**cfg_kwargs)
 
 
+def main():
+    DKVMN.run()
+
+
 if __name__ == '__main__':
     DKVMN.run()
     # DKVMN.run(

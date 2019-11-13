@@ -12,5 +12,11 @@ setup(
         'gluonnlp',
         'sklearn',
         'longling>=1.3.0',
-    ]  # And any other dependencies foo needs
+    ],  # And any other dependencies foo needs
+    entry_points={
+        "console_scripts": [
+            "DKT = XKT.DKT.DKT:main",
+            "DKTVMN = XKT.DKVMN.DKVMN:main"
+        ],
+    },
 )

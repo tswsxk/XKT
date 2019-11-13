@@ -418,6 +418,10 @@ class DKT(object):
         eval("%s.%s" % (DKT.__name__, subcommand))(**cfg_kwargs)
 
 
+def main():
+    DKT.run()
+
+
 if __name__ == '__main__':
     DKT.run()
     # DKT.run(

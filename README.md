@@ -67,18 +67,21 @@ def extract(data_src):
 
     return responses
 ```
-The above program can be found in `~/XKT/XKT/shared/etl.py`
+The above program can be found in `XKT/XKT/shared/etl.py`
 
 ##### Convert other format into json sequence
 There is another common-seen format in KT task:
 ```text
-
+5
+419,419,419,665,665
+1,1,1,0,0
 ```
 By using the cli tools from `EduData`, we can quickly convert the data in the above-mentioned format into json sequence.
 ```shell
-
+# convert tl sequence to json sequence
+edudata tl2json $src $tar
 ```
-Refer to [Edudata Documentation](visit https://base.ustc.edu.cn for more of our works.) for installation and usage tutorial.
+Refer to [Edudata Documentation](https://github.com/bigdata-ustc/EduData) for installation and usage tutorial.
 
 #### General Command Format
 All command to invoke the model has the same cli canonical form:
@@ -138,5 +141,7 @@ There are some datasets which are suitable for this task, and the followings are
 * [JunyiAcademy Math Practicing Log](https://pslcdatashop.web.cmu.edu/DatasetInfo?datasetId=1198)
 
 * [slepemapy.cz](https://www.fi.muni.cz/adaptivelearning/?a=data)
+
+* [synthetic](https://github.com/chrispiech/DeepKnowledgeTracing/tree/master/data/synthetic)
 
 For Latest collection, you can refer to [BaseData](http://base.ustc.edu.cn/data/) 

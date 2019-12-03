@@ -15,6 +15,8 @@ With [`EduData`](https://pypi.python.org/pypi/EduData), we test the models perfo
 | EmbedDKT   |                    |
 | DKVMN      |                    |
 
+The information of the benchmark datasets can be found in EduData docs.
+
 ## Notice
 
 The DKT in current version performs very poorly compared with Pytroch and Tensorflow version.

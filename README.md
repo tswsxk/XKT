@@ -7,7 +7,13 @@ Visit https://base.ustc.edu.cn for more of our works.
 
 ## Performance in well-known Dataset
 
-TBA
+With [`EduData`](https://pypi.python.org/pypi/EduData), we test the models performance, the AUC result is listed as follows:
+
+|model name  | assistment_2009_2010 |
+| ---------- | ------------------ |
+| DKT        |                    |
+| EmbedDKT   |                    |
+| DKVMN      |                    |
 
 ## Notice
 
@@ -113,6 +119,7 @@ python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_par
 ```shell
 python3 DKVMN.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=DKVMN;ku_num=int(835);key_embedding_dim=int(50);value_embedding_dim=int(200);hidden_num=int(50);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --ctx="gpu(0)" --workspace DKVMN --dataset="junyi_100"
 ```
+
 ## Appendix
 
 ### Model

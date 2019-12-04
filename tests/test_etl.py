@@ -1,7 +1,7 @@
 # coding: utf-8
 # create by tongshiwei on 2019-7-13
 
-
+from longling.lib.structure import AttrDict
 from XKT import extract, pseudo_data_generation
 
 
@@ -17,4 +17,4 @@ def test_extract(train_dataset, test_dataset):
 
 
 def test_pseudo():
-    pseudo_data_generation({"ku_num": 10})
+    pseudo_data_generation(AttrDict({"hyper_params": {"ku_num": 10}}))

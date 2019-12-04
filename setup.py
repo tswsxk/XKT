@@ -8,6 +8,7 @@ test_deps = [
     'pytest-cov>=2.6.0',
     'pytest-pep8>=1',
     'EduData',
+    'mxnet',
 ]
 
 setup(
@@ -24,7 +25,6 @@ setup(
     },
     install_requires=[
         'tqdm',
-        'mxnet',
         'gluonnlp',
         'sklearn',
         'longling>=1.3.0',

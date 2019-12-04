@@ -21,9 +21,9 @@ def root_dir(tmp_path_factory):
 
 @pytest.fixture(scope="session")
 def dataset_dir(root_dir):
-    dataset_dir = path_append(root_dir, "ktbd", "data")
+    dataset_dir = path_append(root_dir, "ktbd")
     dataset_dir = get_data("tests", dataset_dir)
-    yield dataset_dir
+    yield path_append(dataset_dir, "assistment_2009_2010")
 
 
 @pytest.fixture(scope="session")

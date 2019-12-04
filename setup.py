@@ -8,7 +8,6 @@ test_deps = [
     'pytest-cov>=2.6.0',
     'pytest-pep8>=1',
     'EduData',
-    'mxnet',
 ]
 
 try:

@@ -26,7 +26,6 @@ The DKT in current version performs very poorly compared with Pytroch and Tensor
 
 ### Installation
 
-0. Install mxnet (CPU or GPU are both ok) before you start.
 1. First get the repo in your computer by `git` or any way you like.
 2. Suppose you create the project under your own `home` directory, then you can use use 
     1. `pip install -e .` to install the package, or

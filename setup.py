@@ -11,6 +11,12 @@ test_deps = [
     'mxnet',
 ]
 
+try:
+    import mxnet
+    mxnet_requires = []
+except ModuleNotFoundError:
+    mxnet_requires = ["mxnet"]
+
 setup(
     name='XKT',
     version='0.0.1',
@@ -23,7 +29,7 @@ setup(
     extras_require={
         'test': test_deps,
     },
-    install_requires=[
+    install_requires=mxnet_requires + [
         'tqdm',
         'gluonnlp',
         'sklearn',

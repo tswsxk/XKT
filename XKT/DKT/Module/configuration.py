@@ -18,7 +18,8 @@ class Configuration(parser.Configuration):
     # 目录配置
     model_name = str(pathlib.Path(__file__).parents[1].name)
 
-    root = pathlib.Path(__file__).parents[3]
+    # root = pathlib.Path(__file__).parents[3]
+    root = "./"
     dataset = ""
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     workspace = ""

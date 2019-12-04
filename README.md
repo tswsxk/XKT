@@ -9,11 +9,11 @@ Visit https://base.ustc.edu.cn for more of our works.
 
 With [`EduData`](https://pypi.python.org/pypi/EduData), we test the models performance, the AUC result is listed as follows:
 
-|model name  | assistment_2009_2010 |
-| ---------- | ------------------ |
-| DKT        |                    |
-| EmbedDKT   |                    |
-| DKVMN      |                    |
+|model name  | assistment_2009_2010 | junyi |
+| ---------- | ------------------ | ----- |
+| DKT        |                    | |
+| EmbedDKT   |                    | |
+| DKVMN      |                    | |
 
 The information of the benchmark datasets can be found in EduData docs.
 

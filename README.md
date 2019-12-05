@@ -14,11 +14,19 @@ With [`EduData`](https://pypi.python.org/pypi/EduData), we test the models perfo
 
 |model name  | assistment_2009_2010 | junyi |
 | ---------- | ------------------ | ----- |
-| DKT        |                    | |
-| EmbedDKT   |                    | |
+| DKT        |                    ||
+| EmbedDKT   |        0.831171            ||
 | DKVMN      |                    | |
 
 The information of the benchmark datasets can be found in EduData docs.
+
+In addition, all models are trained 20 epochs and the best result is reported. The hyper-parameters are listed as follows:
+
+|model name  | assistment_2009_2010 | junyi |
+| ---------- | ------------------ | ----- |
+| DKT        |                    | `ku_num=int(124);hidden_num=int(200);latent_dim=int(75);dropout=float(0.5)`|
+| EmbedDKT   |                    | `ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)`|
+| DKVMN      |                    | |
 
 ## Notice
 

@@ -91,7 +91,7 @@ def train(train_fn, test_fn, **cfg_kwargs):
     numerical_check(_net, _cfg, train_data, test_data, dump_result=True)
 
 
-def sym_run(stage: (int, str) = "viz"):
+def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
     if isinstance(stage, str):
         stage = {
             "viz": 0,

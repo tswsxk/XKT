@@ -110,10 +110,10 @@ class Configuration(parser.Configuration):
             setattr(self, "%s" % param, value)
 
         # set dataset
-        if kwargs.get("dataset"):
+        if kwargs.get("dataset") and not kwargs.get("root_data_dir"):
             kwargs["root_data_dir"] = "$root/data/$dataset"
         # set workspace
-        if kwargs.get("workspace"):
+        if kwargs.get("workspace") and not kwargs.get("root_model_dir"):
             kwargs["model_dir"] = "$root_model_dir/$workspace"
 
         # rebuild relevant directory or file path according to the kwargs

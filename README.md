@@ -125,7 +125,7 @@ python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_par
 
 ### EmbedDKT
 ```shell
-python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --workspace EmbedDKT --dataset="junyi_100" 
+python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --workspace EmbedDKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/assistment_2009_2010 --data_dir=\$root_data_dir 
 ```
 
 ### DKVMN

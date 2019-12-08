@@ -15,7 +15,19 @@ With [`EduData`](https://pypi.python.org/pypi/EduData), we test the models perfo
 |model name  | assistment_2009_2010 | junyi |
 | ---------- | ------------------ | ----- |
 | DKT        |                    ||
-| EmbedDKT   |        0.831171            ||
+| DKT+       | | |
+| EmbedDKT   |        0.8320344321721882            ||
+| DKVMN      |                    | |
+
+
+The f1 scores are listed as follows:
+
+|model name  | assistment_2009_2010 | junyi |
+| ---------- | ------------------ | ----- |
+| DKT        |                    ||
+| DKT+       | | |
+| EmbedDKT   |        0.7175906464749389           ||
+| EmbedDKT+   |                   ||
 | DKVMN      |                    | |
 
 The information of the benchmark datasets can be found in EduData docs.
@@ -25,12 +37,19 @@ In addition, all models are trained 20 epochs and the best result is reported. T
 |model name  | assistment_2009_2010 | junyi |
 | ---------- | ------------------ | ----- |
 | DKT        |                    | `ku_num=int(124);hidden_num=int(200);latent_dim=int(75);dropout=float(0.5)`|
+| DKT+       | | |
 | EmbedDKT   |                    | `ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)`|
+| EmbedDKT+   |                    | `ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)`|
 | DKVMN      |                    | |
 
 ## Notice
 
 The DKT in current version performs very poorly compared with Pytroch and Tensorflow version.
+
+The DKT+ sometimes meet `NaN` problem which may resulted by the `mxnet` problem.
+```text
+ValueError: Input contains NaN, infinity or a value too large for dtype('float64').
+```
  
 
 ## Tutorial
@@ -119,13 +138,16 @@ Refer to the [glue documentation(TBA)] for detailed usage.
 
 ### DKT
 ```shell
-python3 DKT.py train \$data_dir/train \$data_dir/valid --root ~/XKT  --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --workspace DKT --dataset="junyi_100"
+python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --workspace EmbedDKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=assistment_2009_2010
 ```
 
 
 ### EmbedDKT
 ```shell
-python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --workspace EmbedDKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/assistment_2009_2010 --data_dir=\$root_data_dir 
+# EmbedDKT
+python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --workspace EmbedDKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=assistment_2009_2010
+# EmbedDKT+ 
+python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --loss_params "lr=float(0.1);lw1=float(0.003);lw2=float(3.0)" --ctx="gpu(0)" --model_name EmbedDKT+ --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=assistment_2009_2010
 ```
 
 ### DKVMN

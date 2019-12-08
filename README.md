@@ -12,35 +12,37 @@ Visit https://base.ustc.edu.cn for more of our works.
 
 With [`EduData`](https://pypi.python.org/pypi/EduData), we test the models performance, the AUC result is listed as follows:
 
-|model name  | assistment_2009_2010 | junyi |
-| ---------- | ------------------ | ----- |
-| DKT        |                    ||
-| DKT+       | | |
-| EmbedDKT   |        0.8320344321721882            ||
-| DKVMN      |                    | |
+|model name  | synthetic | assistment_2009_2010 | junyi |
+| ---------- | - |------------------ | ----- |
+| DKT        | 0.87188805322963 | 0.8342923397670765 ||
+| DKT+       | || |
+| EmbedDKT   | 0.8737522637057311 |       0.8320344321721882            ||
+| DKVMN      | |                   | |
 
 
 The f1 scores are listed as follows:
 
-|model name  | assistment_2009_2010 | junyi |
-| ---------- | ------------------ | ----- |
-| DKT        |                    ||
-| DKT+       | | |
-| EmbedDKT   |        0.7175906464749389           ||
-| EmbedDKT+   |                   ||
-| DKVMN      |                    | |
+|model name  | synthetic | assistment_2009_2010 | junyi |
+| ---------- | ------------------ | ----- | ----- |
+| DKT        | 0.7777607801805209 | 0.7243637771478697 ||
+| DKT+       | | | |
+| EmbedDKT   | 0.7793557673356585 |        0.7175906464749389           ||
+| EmbedDKT+   |                   |                   ||
+| DKVMN      |                    |                    | |
 
 The information of the benchmark datasets can be found in EduData docs.
 
 In addition, all models are trained 20 epochs and the best result is reported. The hyper-parameters are listed as follows:
 
-|model name  | assistment_2009_2010 | junyi |
-| ---------- | ------------------ | ----- |
-| DKT        |                    | `ku_num=int(124);hidden_num=int(200);latent_dim=int(75);dropout=float(0.5)`|
-| DKT+       | | |
-| EmbedDKT   |                    | `ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)`|
-| EmbedDKT+   |                    | `ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)`|
-| DKVMN      |                    | |
+|model name  | synthetic - 50 | assistment_2009_2010 - 124 | junyi-835 |
+| ---------- | ------------------ | ----- | ----- |
+| DKT        | `hidden_num=int(100);dropout=float(0.5)` | `hidden_num=int(200);latent_dim=int(75);dropout=float(0.5)` | `hidden_num=int(900);dropout=float(0.5)` |
+| DKT+       | | | |
+| EmbedDKT   |                    |                    | `hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)` |
+| EmbedDKT+   |                    |                    |  |
+| DKVMN      |                    |                    | |
+
+The number after `-` in the first row indicates the knowledge units number in the dataset.
 
 ## Notice
 
@@ -50,7 +52,7 @@ The DKT+ sometimes meet `NaN` problem which may resulted by the `mxnet` problem.
 ```text
 ValueError: Input contains NaN, infinity or a value too large for dtype('float64').
 ```
- 
+
 
 ## Tutorial
 

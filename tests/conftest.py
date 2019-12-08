@@ -8,7 +8,7 @@ import pytest
 
 test_url_dict = {
     "tests":
-        "http://base.ustc.edu.cn/data/ktbd/assistment_2009_2010/",
+        "http://base.ustc.edu.cn/data/ktbd/synthetic/",
 }
 
 get_data = functools.partial(get_data, url_dict=test_url_dict)
@@ -20,17 +20,22 @@ def root_dir(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def dataset_dir(root_dir):
+def dataset():
+    return "synthetic"
+
+
+@pytest.fixture(scope="session")
+def root_data_dir(root_dir, dataset):
     dataset_dir = path_append(root_dir, "ktbd")
     dataset_dir = get_data("tests", dataset_dir)
-    yield path_append(dataset_dir, "assistment_2009_2010")
+    yield path_append(dataset_dir, dataset, to_str=True)
 
 
 @pytest.fixture(scope="session")
-def train_dataset(dataset_dir):
-    return path_append(dataset_dir, "train.json", to_str=True)
+def train_dataset(root_data_dir):
+    return path_append(root_data_dir, "train.json", to_str=True)
 
 
 @pytest.fixture(scope="session")
-def test_dataset(dataset_dir):
-    return path_append(dataset_dir, "test.json", to_str=True)
+def test_dataset(root_data_dir):
+    return path_append(root_data_dir, "test.json", to_str=True)

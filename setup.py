@@ -32,7 +32,7 @@ setup(
         'tqdm',
         'gluonnlp',
         'sklearn',
-        'longling>=1.3.0',
+        'longling>=1.3.2',
     ],  # And any other dependencies foo needs
     entry_points={
         "console_scripts": [

@@ -13,9 +13,9 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
     The loss has been average, so when call the step method of trainer, batch_size should be 1
     """
 
-    def __init__(self, lwr=0.0, lw1=0.0, lw2=0.0, **kwargs):
+    def __init__(self, lr=0.0, lw1=0.0, lw2=0.0, **kwargs):
         super(SequenceLogisticMaskLoss, self).__init__(**kwargs)
-        self.lwr = lwr
+        self.lr = lr
         self.lw1 = lw1
         self.lw2 = lw2
         with self.name_scope():
@@ -40,7 +40,7 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
             w1 = 0.0
             w2 = 0.0
 
-        if self.lwr > 0.0:
+        if self.lr > 0.0:
             re_pred_rs = F.slice_axis(pred_rs, axis=1, begin=1, end=None)
             re_pred_rs = F.pick(re_pred_rs, pick_index)
             re_weight_mask = F.squeeze(
@@ -48,7 +48,7 @@ class SequenceLogisticMaskLoss(gluon.HybridBlock):
                                use_sequence_length=True, axis=1)
             )
             wr = self.loss(re_pred_rs, label, re_weight_mask)
-            wr = F.mean(wr) * self.lwr
+            wr = F.mean(wr) * self.lr
         else:
             wr = 0.0
 

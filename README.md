@@ -14,9 +14,9 @@ With [`EduData`](https://pypi.python.org/pypi/EduData), we test the models perfo
 
 |model name  | synthetic | assistment_2009_2010 | junyi |
 | ---------- | - |------------------ | ----- |
-| DKT        | 0.87188805322963 | 0.8342923397670765 ||
+| DKT        | 0.87188805322963 | 0.8342923397670765 |0.7410560567638328|
 | DKT+       | || |
-| EmbedDKT   | 0.8737522637057311 |       0.8320344321721882            ||
+| EmbedDKT   | 0.8737522637057311 |       0.8320344321721882            |0.8964732397335631|
 | DKVMN      | |                   | |
 
 
@@ -24,21 +24,21 @@ The f1 scores are listed as follows:
 
 |model name  | synthetic | assistment_2009_2010 | junyi |
 | ---------- | ------------------ | ----- | ----- |
-| DKT        | 0.7777607801805209 | 0.7243637771478697 ||
+| DKT        | 0.7777607801805209 | 0.7243637771478697 |0.6776867871487828|
 | DKT+       | | | |
-| EmbedDKT   | 0.7793557673356585 |        0.7175906464749389           ||
+| EmbedDKT   | 0.7793557673356585 |        0.7175906464749389           |0.8251094941054025|
 | EmbedDKT+   |                   |                   ||
 | DKVMN      |                    |                    | |
 
 The information of the benchmark datasets can be found in EduData docs.
 
-In addition, all models are trained 20 epochs and the best result is reported. The hyper-parameters are listed as follows:
+In addition, all models are trained 20 epochs with `batch_size=16`, where the best result is reported.  We use `adam` with `learning_rate=1e-3`. We also apply `bucketing` to accelerate the training speed. Moreover, each sample length is limited to 200. The hyper-parameters are listed as follows:
 
 |model name  | synthetic - 50 | assistment_2009_2010 - 124 | junyi-835 |
 | ---------- | ------------------ | ----- | ----- |
-| DKT        | `hidden_num=int(100);dropout=float(0.5)` | `hidden_num=int(200);latent_dim=int(75);dropout=float(0.5)` | `hidden_num=int(900);dropout=float(0.5)` |
+| DKT        | `hidden_num=int(100);dropout=float(0.5)` | `hidden_num=int(200);dropout=float(0.5)` | `hidden_num=int(900);dropout=float(0.5)` |
 | DKT+       | | | |
-| EmbedDKT   |                    |                    | `hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)` |
+| EmbedDKT   | `hidden_num=int(100);latent_dim=int(35);dropout=float(0.5)` | `hidden_num=int(200);latent_dim=int(75);dropout=float(0.5)` | `hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)` |
 | EmbedDKT+   |                    |                    |  |
 | DKVMN      |                    |                    | |
 
@@ -46,7 +46,7 @@ The number after `-` in the first row indicates the knowledge units number in th
 
 ## Notice
 
-The DKT in current version performs very poorly compared with Pytroch and Tensorflow version.
+The DKT in current version performs somehow poorly compared with Pytroch and Tensorflow version.
 
 The DKT+ sometimes meet `NaN` problem which may resulted by the `mxnet` problem.
 ```text
@@ -67,6 +67,7 @@ ValueError: Input contains NaN, infinity or a value too large for dtype('float64
 As an example, suppose you create the project under your own `home` directory 
 and create a `data` directory to store the data (like `train` and `test`) and model.
 The toc of the project is looked like as follows:
+
 ```text
 └── XKT/                            <- root
     ├── data/

@@ -72,4 +72,3 @@ def test_train(root_data_dir, dataset):
         )
     except ValueError:
         assert True
-

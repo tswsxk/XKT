@@ -413,7 +413,7 @@ class DKVMN(gluon.HybridBlock):
             self.embedding_dropout = gluon.nn.Dropout(embedding_dropout)
 
             self.dkvmn = DKVMNCell(key_memory_size, key_memory_state_dim, value_memory_size, value_memory_state_dim)
-            self.input_nn = gluon.nn.Dense(50, flatten=False)
+            self.input_nn = gluon.nn.Dense(50, flatten=False)  # 50 is set by the paper authors
             self.input_act = gluon.nn.Activation('tanh')
             self.read_content_nn = gluon.nn.Dense(hidden_num, flatten=False)
             self.read_content_act = gluon.nn.Activation('tanh')

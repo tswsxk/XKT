@@ -50,6 +50,12 @@ pip install EduData
 edudata download ktbd
 ```
 
+### Trick
+
+* DKT: `hidden_num` is usually set to the nearest hundred number to the `ku_num`
+* EmbedDKT: `latent_dim` is usually set to a value litter than or equal to `\sqrt(hidden_num * ku_num)`
+* DKVMN: `key_embedding_dim = key_memory_state_dim` and `value_embedding_dim = value_memory_state_dim`
+
 ## Notice
 
 The DKT in current version performs somehow poorly compared with Pytroch and Tensorflow version.

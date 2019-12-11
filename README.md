@@ -3,6 +3,7 @@
 [![codecov](https://codecov.io/gh/tswsxk/XKT/branch/master/graph/badge.svg)](https://codecov.io/gh/tswsxk/XKT)
 
 Multiple Knowledge Tracing models implemented by mxnet-gluon. 
+Mirror version of pytorch can be found [here](https://github.com/bigdata-ustc/TKT)
 For convenient dataset downloading and preprocessing of knowledge tracing task, 
 visit [Edudata](https://github.com/bigdata-ustc/EduData) for handy api.
 

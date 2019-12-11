@@ -24,7 +24,7 @@ setup(
     long_description='Refer to full documentation https://github.com/bigdata-ustc/XKT/blob/master/README.md'
                      ' for detailed information.',
     description='This project aims to '
-                'provide convenient interfaces for downloading and preprocessing dataset in education.',
+                'provide multiple knowledge tracing models.',
     extras_require={
         'test': test_deps,
     },

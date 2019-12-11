@@ -1,4 +1,6 @@
 # XKT
+
+[![PyPI](https://img.shields.io/pypi/v/XKT.svg)](https://pypi.python.org/pypi/XKT)
 [![Build Status](https://www.travis-ci.org/tswsxk/XKT.svg?branch=master)](https://www.travis-ci.org/tswsxk/XKT)
 [![codecov](https://codecov.io/gh/tswsxk/XKT/branch/master/graph/badge.svg)](https://codecov.io/gh/tswsxk/XKT)
 

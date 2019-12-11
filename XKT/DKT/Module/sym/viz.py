@@ -9,7 +9,7 @@ from longling import path_append
 from longling.ML.MxnetHelper.toolkit.viz import plot_network, VizError
 
 
-def net_viz(_net, _cfg, view_tag=False, **kwargs):
+def net_viz(_net, _cfg, view_tag=False, **kwargs):  # pragma: no cover
     """visualization check, only support pure static network"""
     batch_size = _cfg.batch_size
     model_dir = _cfg.model_dir

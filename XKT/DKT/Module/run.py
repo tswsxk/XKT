@@ -1,5 +1,7 @@
 # coding: utf-8
 # create by tongshiwei on 2019-9-1
+# pragma: no cover
+
 from longling import path_append
 
 try:
@@ -91,7 +93,7 @@ def train(train_fn, test_fn, **cfg_kwargs):
     numerical_check(_net, _cfg, train_data, test_data, dump_result=True)
 
 
-def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
+def sym_run(stage: (int, str) = "viz"):
     if isinstance(stage, str):
         stage = {
             "viz": 0,

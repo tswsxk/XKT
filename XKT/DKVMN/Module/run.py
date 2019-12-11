@@ -1,3 +1,5 @@
+# pragma: no cover
+
 from longling import path_append
 
 try:

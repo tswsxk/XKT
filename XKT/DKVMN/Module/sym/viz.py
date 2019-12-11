@@ -1,15 +1,16 @@
 # coding: utf-8
 # create by tongshiwei on 2019-9-1
 
-__all__ = ["net_viz"]
 
 import logging
 
 import mxnet as mx
 from longling.ML.MxnetHelper.toolkit.viz import plot_network, VizError
 
+__all__ = ["net_viz"]
 
-def net_viz(_net, _cfg, view_tag=False, **kwargs):
+
+def net_viz(_net, _cfg, view_tag=False, **kwargs):  # pragma: no cover
     """visualization check, only support pure static network"""
     batch_size = _cfg.batch_size
     model_dir = _cfg.model_dir

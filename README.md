@@ -68,7 +68,7 @@ The DKT+ sometimes meet `NaN` problem which may resulted by the `mxnet` problem.
 ValueError: Input contains NaN, infinity or a value too large for dtype('float64').
 ```
 
-PS. if you think such problem is so easy to solve, please do not hesitate to contact us :-).
+PS. if you think those problems are so easy to solve, please do not hesitate to contact us :-).
 
 ## Tutorial
 

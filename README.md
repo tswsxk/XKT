@@ -107,22 +107,17 @@ def extract(data_src):
 
     return responses
 ```
-The above program can be found in `XKT/XKT/shared/etl.py`
+The above program can be found in `XKT/XKT/shared/etl.py`. 
 
-##### Convert other format into json sequence
-There is another common-seen format in KT task:
+To deal with the issue that the dataset is store in `tl` format:
+
 ```text
 5
 419,419,419,665,665
 1,1,1,0,0
 ```
-By using the cli tools from `EduData`, we can quickly convert the data in the above-mentioned format into json sequence.
-```shell
-# convert tl sequence to json sequence
-edudata tl2json $src $tar
-```
-Refer to [Edudata Documentation](https://github.com/bigdata-ustc/EduData) for installation and usage tutorial.
 
+Refer to [Edudata Documentation](https://github.com/bigdata-ustc/EduData#format-converter).
 
 ### CLI
 

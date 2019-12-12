@@ -79,25 +79,8 @@ PS. if you think those problems are so easy to solve, please do not hesitate to 
     1. `pip install -e .` to install the package, or
     2. `export PYTHONPATH=$PYTHONPATH:~/XKT`
     
-### Preliminary
-As an example, suppose you create the project under your own `home` directory 
-and create a `data` directory to store the data (like `train` and `test`) and model.
-The toc of the project is looked like as follows:
 
-```text
-└── XKT/                            <- root
-    ├── data/
-    │   └── dataset/                <- data_dir
-    │        ├── workspace/         <- workspace, the model file like parameters file will be stored here
-    │        ├── train
-    │        └── test
-    ├── ...
-    └── XKT/
-```
-Certainly, the structure is not a strict limitation, you can also specify the `data` position as you want. 
-Here is just a toy example :-).  
-
-#### Data Format
+### Data Format
 In `XKT`, all sequence is store in `json` format, such as:
 ```json
 [[419, 1], [419, 1], [419, 1], [665, 0], [665, 0]]
@@ -164,11 +147,48 @@ The cli tools is constructed based on
 
 ---
 
+As an example, suppose you create the project under your own `home` directory 
+and create a `data` directory to store the data (like `train` and `test`) and model. 
+Assume that you are going to test the models on [ktbd](http://base.ustc.edu.cn/data/ktbd/) dataset, 
+and the toc of the project is looked like as follows:
+
+```text
+└── XKT/                            
+    ├── data/
+    │   └── ktbd/                
+    │        ├── junyi/             <-- dataset
+    │        │   ├── train.json
+    │        │   └── test.json
+    │        ├── ...
+    │        └── synthetic/
+    ├── ...
+    └── XKT/
+```
+
+And in each dataset, `train.json` is the training dataset, and `test.json` is the test dataset, 
+we want the model is placed under the corresponding dataset directory,
+where a `model` directory is created to store the all models. Thus, we use the following command to train the model
+
 ```shell
 # basic
 python3 DKT.py train $HOME/XKT/data/ktbd/junyi/train.json $HOME/XKT/data/ktbd/junyi/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_dir $HOME/XKT/data/ktbd/junyi/model/DKT 
 # advanced path configuration
 python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
+```
+And we can get something like that:
+```text
+junyi/
+├── model/
+│   └── DKT/
+│       ├── configuration.json
+│       ├── DKT-0001.parmas
+│       ├── DKT-0002.parmas
+│       ├── ...
+│       ├── DKT-0020.parmas
+│       ├── result.json
+│       └── result.log
+├── test.json
+└── train.json
 ```
 The two command mentioned above are equally the same. 
 About how to use the advanced path configuration, 

@@ -155,10 +155,26 @@ The cli tools is constructed based on
 [longling ConfigurationParser](https://longling.readthedocs.io/zh/latest/submodule/lib/index.html#module-longling.lib.parser). 
 Refer to the [glue documentation(TBA)] for detailed usage.
 
+### CLI
+
+---
+
+```shell
+# basic
+python3 DKT.py train $HOME/XKT/data/ktbd/junyi/train.json $HOME/XKT/data/ktbd/junyi/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_dir $HOME/XKT/data/ktbd/junyi/model/DKT 
+# advanced path configuration
+python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
+```
+The two command mentioned above are equally the same. 
+About how to use the advanced path configuration, 
+refer to [longling doc](https://longling.readthedocs.io/zh/latest/submodule/ML/index.html#configuration).
+
+---
+
 ### DKT
 ```shell
 # DKT
-python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
+python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
 # DKT+
 python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(600);dropout=float(0.5)" --loss_params "lr=float(0.1);lw1=float(0.003);lw2=float(3.0)" --ctx="gpu(0)" --model_name DKT+ --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
 ```
@@ -194,18 +210,6 @@ the following are the url of those implemented by python (the stared is the auth
 * EKT[[pytorch*]](https://github.com/bigdata-ustc/ekt)
 
 ### Dataset
-There are some datasets which are suitable for this task, and the followings are the url:
-
-* [KDD Cup 2010](https://pslcdatashop.web.cmu.edu/KDDCup/downloads.jsp)
-
-* [ASSISTments](https://sites.google.com/site/assistmentsdata/)
-
-* [OLI Engineering Statics 2011](https://pslcdatashop.web.cmu.edu/DatasetInfo?datasetId=507)
-
-* [JunyiAcademy Math Practicing Log](https://pslcdatashop.web.cmu.edu/DatasetInfo?datasetId=1198)
-
-* [slepemapy.cz](https://www.fi.muni.cz/adaptivelearning/?a=data)
-
-* [synthetic](https://github.com/chrispiech/DeepKnowledgeTracing/tree/master/data/synthetic)
-
-For Latest collection, you can refer to [BaseData](http://base.ustc.edu.cn/data/) 
+There are some datasets which are suitable for this task, 
+you can refer to [BaseData ktbd doc](https://github.com/bigdata-ustc/EduData/blob/master/docs/ktbd.md) 
+for these datasets 

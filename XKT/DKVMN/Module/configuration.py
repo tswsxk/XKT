@@ -107,11 +107,23 @@ class Configuration(parser.Configuration):
         for param, value in params.items():
             setattr(self, "%s" % param, value)
 
+        # path_override_check
+        path_check_list = ["dataset", "root_data_dir", "workspace", "root_model_dir", "model_dir"]
+        _overridden = {}
+        for path_check in path_check_list:
+            _overridden[path_check] = False if kwargs.get(path_check) == getattr(self, "%s" % path_check) else True
+
+        for param, value in params.items():
+            setattr(self, "%s" % param, value)
+
+        def is_overridden(varname):
+            return _overridden["%s" % varname]
+
         # set dataset
-        if kwargs.get("dataset") and not kwargs.get("root_data_dir"):
+        if is_overridden("dataset") and not is_overridden("root_data_dir"):
             kwargs["root_data_dir"] = "$root/data/$dataset"
         # set workspace
-        if (kwargs.get("workspace") or kwargs.get("root_model_dir")) and not kwargs.get("model_dir"):
+        if (is_overridden("workspace") or is_overridden("root_model_dir")) and not is_overridden("model_dir"):
             kwargs["model_dir"] = "$root_model_dir/$workspace"
 
         # rebuild relevant directory or file path according to the kwargs

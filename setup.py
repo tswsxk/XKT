@@ -1,6 +1,7 @@
 # coding: utf-8
 # create by tongshiwei on 2019/6/25
 
+import logging
 from setuptools import setup, find_packages
 
 test_deps = [
@@ -12,9 +13,13 @@ test_deps = [
 
 try:
     import mxnet
+
     mxnet_requires = []
 except ModuleNotFoundError:
     mxnet_requires = ["mxnet"]
+except Exception as e:
+    mxnet_requires = []
+    logging.error(e)
 
 setup(
     name='XKT',

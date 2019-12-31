@@ -15,7 +15,8 @@ except (ImportError, SystemError):  # pragma: no cover
     from configuration import Configuration, ConfigurationParser
 
 
-def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_result=False):  # pragma: no cover
+def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_result=False,
+                    reporthook=None):  # pragma: no cover
     ctx = _cfg.ctx
     batch_size = _cfg.batch_size
 
@@ -65,16 +66,16 @@ def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_resul
             )
 
         if epoch % 1 == 0:
-            if epoch % 1 == 0:
-                print(
-                    evaluation_formatter(
-                        epoch=epoch,
-                        loss_name_value=dict(loss_monitor.items()),
-                        eval_name_value=eval_f(_net, test_data, ctx=ctx),
-                        extra_info=None,
-                        dump=True,
-                    )[0]
-                )
+            msg, data = evaluation_formatter(
+                epoch=epoch,
+                loss_name_value=dict(loss_monitor.items()),
+                eval_name_value=eval_f(_net, test_data, ctx=ctx),
+                extra_info=None,
+                dump=True,
+            )
+            print(msg)
+            if reporthook is not None:
+                reporthook(data)
 
 
 def pseudo_numerical_check(_net, _cfg):  # pragma: no cover

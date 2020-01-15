@@ -37,7 +37,7 @@ setup(
         'tqdm',
         'gluonnlp',
         'sklearn',
-        'longling>=1.3.3',
+        'longling==1.3.8',
     ],  # And any other dependencies foo needs
     entry_points={
     },

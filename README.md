@@ -15,36 +15,36 @@ Visit https://base.ustc.edu.cn for more of our works.
 
 With [`EduData`](https://pypi.python.org/pypi/EduData), we test the models performance, the AUC result is listed as follows:
 
-|model name  | synthetic | assistment_2009_2010 | junyi |
-| ---------- | - |------------------ | ----- |
-| DKT        | 0.87188805322963 | 0.8342923397670765 |0.7410560567638328|
-| DKT+       | 0.869383618973861 |NaN| NaN |
-| EmbedDKT   | **0.8737522637057311** |       0.8320344321721882            |**0.8964732397335631**|
-| EmbedDKT+ | 0.8726981813026308 | NaN |NaN|
-| DKVMN      | 0.8718044211997655     | **0.8420074256820345** | 0.8917019246036442 |
+|model name  | synthetic | assistment_2009_2010 | junyi | EdNet |
+| ---------- | - |------------------ | ----- | ----- |
+| DKT        | 0.87188805322963 | 0.8342923397670765 |0.7410560567638328||
+| DKT+       | 0.869383618973861 |NaN| NaN |  |
+| EmbedDKT   | **0.8737522637057311** |       0.8320344321721882            |**0.8964732397335631**||
+| EmbedDKT+ | 0.8726981813026308 | NaN |NaN||
+| DKVMN      | 0.8718044211997655     | **0.8420074256820345** | 0.8917019246036442 |  |
 
 
 The f1 scores are listed as follows:
 
-|model name  | synthetic | assistment_2009_2010 | junyi |
-| ---------- | ------------------ | ----- | ----- |
-| DKT        | 0.7777607801805209 | **0.7243637771478697** |0.6776867871487828|
-| DKT+       | 0.7755420680146433 | NaN | NaN |
-| EmbedDKT   | **0.7793557673356585** |        0.7175906464749389           |**0.8251094941054025**|
-| EmbedDKT+   | 0.7788504496202276 | NaN |NaN|
-| DKVMN      | 0.7753258655479229 | 0.7169883125521318 | 0.8173835510540102 |
+|model name  | synthetic | assistment_2009_2010 | junyi | EdNet |
+| ---------- | ------------------ | ----- | ----- | ----- |
+| DKT        | 0.7777607801805209 | **0.7243637771478697** |0.6776867871487828||
+| DKT+       | 0.7755420680146433 | NaN | NaN |  |
+| EmbedDKT   | **0.7793557673356585** |        0.7175906464749389           |**0.8251094941054025**||
+| EmbedDKT+   | 0.7788504496202276 | NaN |NaN||
+| DKVMN      | 0.7753258655479229 | 0.7169883125521318 | 0.8173835510540102 |  |
 
 The information of the benchmark datasets can be found in EduData docs.
 
 In addition, all models are trained 20 epochs with `batch_size=16`, where the best result is reported.  We use `adam` with `learning_rate=1e-3`. We also apply `bucketing` to accelerate the training speed. Moreover, each sample length is limited to 200. The hyper-parameters are listed as follows:
 
-|model name  | synthetic - 50 | assistment_2009_2010 - 124 | junyi-835 |
-| ---------- | ------------------ | ----- | ----- |
-| DKT        | `hidden_num=int(100);dropout=float(0.5)` | `hidden_num=int(200);dropout=float(0.5)` | `hidden_num=int(900);dropout=float(0.5)` |
-| DKT+       | `lr=float(0.2);lw1=float(0.001);lw2=float(10.0)` | `lr=float(0.1);lw1=float(0.003);lw2=float(3.0)` | `lr=float(0.01);lw1=float(0.001);lw2=float(1.0)` |
-| EmbedDKT   | `hidden_num=int(100);latent_dim=int(35);dropout=float(0.5)` | `hidden_num=int(200);latent_dim=int(75);dropout=float(0.5)` | `hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)` |
-| EmbedDKT+   | `lr=float(0.2);lw1=float(0.001);lw2=float(10.0)` | `lr=float(0.1);lw1=float(0.003);lw2=float(3.0)` | `lr=float(0.01);lw1=float(0.001);lw2=float(1.0)` |
-| DKVMN      | `hidden_num=int(50);key_embedding_dim=int(10);value_embedding_dim=int(10);key_memory_size=int(5);key_memory_state_dim=int(10);value_memory_size=int(5);value_memory_state_dim=int(10);dropout=float(0.5)` | `hidden_num=int(50);key_embedding_dim=int(50);value_embedding_dim=int(200);key_memory_size=int(50);key_memory_state_dim=int(50);value_memory_size=int(50);value_memory_state_dim=int(200);dropout=float(0.5)` | `hidden_num=int(50);key_embedding_dim=int(50);value_embedding_dim=int(200);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)` |
+|model name  | synthetic - 50 | assistment_2009_2010 - 124 | junyi-835 | EdNet |
+| ---------- | ------------------ | ----- | ----- | ----- |
+| DKT        | `hidden_num=int(100);dropout=float(0.5)` | `hidden_num=int(200);dropout=float(0.5)` | `hidden_num=int(900);dropout=float(0.5)` |  |
+| DKT+       | `lr=float(0.2);lw1=float(0.001);lw2=float(10.0)` | `lr=float(0.1);lw1=float(0.003);lw2=float(3.0)` | `lr=float(0.01);lw1=float(0.001);lw2=float(1.0)` |  |
+| EmbedDKT   | `hidden_num=int(100);latent_dim=int(35);dropout=float(0.5)` | `hidden_num=int(200);latent_dim=int(75);dropout=float(0.5)` | `hidden_num=int(900);latent_dim=int(600);dropout=float(0.5)` |  |
+| EmbedDKT+   | `lr=float(0.2);lw1=float(0.001);lw2=float(10.0)` | `lr=float(0.1);lw1=float(0.003);lw2=float(3.0)` | `lr=float(0.01);lw1=float(0.001);lw2=float(1.0)` |  |
+| DKVMN      | `hidden_num=int(50);key_embedding_dim=int(10);value_embedding_dim=int(10);key_memory_size=int(5);key_memory_state_dim=int(10);value_memory_size=int(5);value_memory_state_dim=int(10);dropout=float(0.5)` | `hidden_num=int(50);key_embedding_dim=int(50);value_embedding_dim=int(200);key_memory_size=int(50);key_memory_state_dim=int(50);value_memory_size=int(50);value_memory_state_dim=int(200);dropout=float(0.5)` | `hidden_num=int(50);key_embedding_dim=int(50);value_embedding_dim=int(200);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)` |  |
 
 The number after `-` in the first row indicates the knowledge units number in the dataset. The datasets we used can be  either found in [basedata-ktbd](http://base.ustc.edu.cn/data/ktbd/) or be downloaded by:
 
@@ -61,7 +61,7 @@ edudata download ktbd
 
 ## Notice
 
-The DKT in current version performs somehow poorly compared with Pytroch and Tensorflow version.
+The Performance may be a little different with other frameworks (e.g., Pytroch and Tensorflow), which is usual.
 
 The DKT+ sometimes meet `NaN` problem which may resulted by the `mxnet` problem.
 ```text
@@ -166,9 +166,9 @@ where a `model` directory is created to store the all models. Thus, we use the f
 
 ```shell
 # basic
-python3 DKT.py train $HOME/XKT/data/ktbd/junyi/train.json $HOME/XKT/data/ktbd/junyi/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_dir $HOME/XKT/data/ktbd/junyi/model/DKT 
+python3 DKT.py train $HOME/XKT/data/ktbd/junyi/train.json $HOME/XKT/data/ktbd/junyi/test.json --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_dir $HOME/XKT/data/ktbd/junyi/model/DKT 
 # advanced path configuration
-python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
+python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
 ```
 And we can get something like that:
 ```text
@@ -194,7 +194,7 @@ refer to [longling doc](https://longling.readthedocs.io/zh/latest/submodule/ML/i
 ### DKT
 ```shell
 # DKT
-python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=EmbedDKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
+python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
 # DKT+
 python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=DKT;ku_num=int(835);hidden_num=int(900);dropout=float(0.5)" --loss_params "lr=float(0.1);lw1=float(0.003);lw2=float(3.0)" --ctx="gpu(0)" --model_name DKT+ --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
 ```

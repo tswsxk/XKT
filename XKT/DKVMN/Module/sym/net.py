@@ -11,7 +11,7 @@ from XKT.shared import LMLoss
 
 
 def get_net(ku_num, key_embedding_dim, value_embedding_dim, hidden_num,
-            key_memory_size, key_memory_state_dim, value_memory_size, value_memory_state_dim,
+            key_memory_size,
             nettype="DKVMN", dropout=0.0, **kwargs):
     return DKVMN(
         ku_num=ku_num,
@@ -19,9 +19,6 @@ def get_net(ku_num, key_embedding_dim, value_embedding_dim, hidden_num,
         value_embedding_dim=value_embedding_dim,
         hidden_num=hidden_num,
         key_memory_size=key_memory_size,
-        key_memory_state_dim=key_memory_state_dim,
-        value_memory_size=value_memory_size,
-        value_memory_state_dim=value_memory_state_dim,
         nettype=nettype,
         dropout=dropout,
         **kwargs
@@ -386,15 +383,25 @@ class DKVMNCell(gluon.HybridBlock):
 
 class DKVMN(gluon.HybridBlock):
     def __init__(self, ku_num, key_embedding_dim, value_embedding_dim, hidden_num,
-                 key_memory_size, key_memory_state_dim, value_memory_size, value_memory_state_dim,
+                 key_memory_size, value_memory_size=None, key_memory_state_dim=None, value_memory_state_dim=None,
                  nettype="DKVMN", dropout=0.0,
                  key_memory_initializer=None, value_memory_initializer=None,
                  **kwargs):
         super(DKVMN, self).__init__(kwargs.get("prefix"), kwargs.get("params"))
 
+        ku_num = int(ku_num)
+        key_embedding_dim = int(key_embedding_dim)
+        value_embedding_dim = int(value_embedding_dim)
+        hidden_num = int(hidden_num)
+        key_memory_size = int(key_memory_size)
+        value_memory_size = int(value_memory_size) if value_memory_size is not None else key_memory_size
+
         self.length = None
         self.nettype = nettype
         self._mask = None
+
+        key_memory_state_dim = int(key_memory_state_dim) if key_memory_state_dim else key_embedding_dim
+        value_memory_state_dim = int(value_memory_state_dim) if value_memory_state_dim else value_embedding_dim
 
         with self.name_scope():
             self.key_memory = self.params.get(

@@ -1,0 +1,6 @@
+{
+  "key_embedding_dim": {"_type":  "quniform", "_value":  [50, 300, 50]},
+  "value_embedding_dim": {"_type":  "quniform", "_value":  [50, 300, 50]},
+  "key_memory_size": {"_type":  "quniform", "_value":  [10, 50, 10]},
+  "learning_rate":{"_type":"quniform","_value":[0, 1, 0.0001]}
+}

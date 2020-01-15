@@ -16,7 +16,7 @@ except (ImportError, SystemError):  # pragma: no cover
 
 
 def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_result=False,
-                    reporthook=None):  # pragma: no cover
+                    reporthook=None, final_reporthook=None):  # pragma: no cover
     ctx = _cfg.ctx
     batch_size = _cfg.batch_size
 
@@ -27,7 +27,7 @@ def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_resul
     loss_function.update(bp_loss_f)
 
     from longling.ML.MxnetHelper.glue import module
-    from longling.ML.toolkit import EvalFormatter as Formatter
+    from longling.ML.toolkit import MultiClassEvalFormatter as Formatter
     from longling.ML.toolkit import MovingLoss
     from tqdm import tqdm
 
@@ -71,11 +71,14 @@ def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_resul
                 loss_name_value=dict(loss_monitor.items()),
                 eval_name_value=eval_f(_net, test_data, ctx=ctx),
                 extra_info=None,
-                dump=True,
+                dump=dump_result,
             )
             print(msg)
             if reporthook is not None:
                 reporthook(data)
+
+    if final_reporthook is not None:
+        final_reporthook()
 
 
 def pseudo_numerical_check(_net, _cfg):  # pragma: no cover
@@ -83,14 +86,21 @@ def pseudo_numerical_check(_net, _cfg):  # pragma: no cover
     numerical_check(_net, _cfg, datas, datas, dump_result=False)
 
 
-def train(train_fn, test_fn, **cfg_kwargs):  # pragma: no cover
+def train(train_fn, test_fn, reporthook=None, final_reporthook=None, **cfg_kwargs):  # pragma: no cover
+    from longling.ML.toolkit.hyper_search import prepare_hyper_search
+
+    cfg_kwargs, reporthook, final_reporthook, tag = prepare_hyper_search(
+        cfg_kwargs, Configuration, reporthook, final_reporthook, primary_key="auc", with_keys="prf:avg:f1",
+    )
+
     _cfg = Configuration(**cfg_kwargs)
     _net = get_net(**_cfg.hyper_params)
 
     train_data = etl(_cfg.var2val(train_fn), params=_cfg)
     test_data = etl(_cfg.var2val(test_fn), params=_cfg)
 
-    numerical_check(_net, _cfg, train_data, test_data, dump_result=True)
+    numerical_check(_net, _cfg, train_data, test_data, dump_result=not tag, reporthook=reporthook,
+                    final_reporthook=final_reporthook)
 
 
 def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
@@ -123,8 +133,8 @@ def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
         # ################################# Simple Train ###############################
         import mxnet as mx
         train(
-            "$data_dir/train",
-            "$data_dir/test",
+            "$data_dir/train.json",
+            "$data_dir/test.json",
             dataset="assistment0910c",
             ctx=mx.cpu(),
             optimizer_params={
@@ -153,4 +163,4 @@ def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
 
 
 if __name__ == '__main__':  # pragma: no cover
-    sym_run("real")
+    sym_run("cli")

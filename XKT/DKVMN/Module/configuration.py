@@ -24,11 +24,11 @@ class Configuration(parser.Configuration):
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     workspace = ""
 
-    root_data_dir = "$root/data/$dataset" if dataset else "$root/data"
-    data_dir = "$root_data_dir/data"
-    root_model_dir = "$root_data_dir/model/$model_name"
-    model_dir = "$root_model_dir/$workspace" if workspace else root_model_dir
-    cfg_path = "$model_dir/configuration.json"
+    root_data_dir = path_append("$root", "data", "$dataset") if dataset else path_append("$root", "data")
+    data_dir = path_append("$root_data_dir", "data")
+    root_model_dir = path_append("$root_data_dir", "model", "$model_name")
+    model_dir = path_append("$root_model_dir", "$workspace") if workspace else root_model_dir
+    cfg_path = path_append("$model_dir", "configuration.json")
 
     root = str(root)
     root_data_dir = str(root_data_dir)
@@ -104,14 +104,14 @@ class Configuration(parser.Configuration):
             params.update(self.load_cfg(params_json=params_json))
         params.update(**kwargs)
 
-        for param, value in params.items():
-            setattr(self, "%s" % param, value)
-
         # path_override_check
         path_check_list = ["dataset", "root_data_dir", "workspace", "root_model_dir", "model_dir"]
         _overridden = {}
         for path_check in path_check_list:
-            _overridden[path_check] = False if kwargs.get(path_check) == getattr(self, "%s" % path_check) else True
+            if kwargs.get(path_check) is None or kwargs[path_check] == getattr(self, "%s" % path_check):
+                _overridden[path_check] = False
+            else:
+                _overridden[path_check] = True
 
         for param, value in params.items():
             setattr(self, "%s" % param, value)
@@ -121,15 +121,14 @@ class Configuration(parser.Configuration):
 
         # set dataset
         if is_overridden("dataset") and not is_overridden("root_data_dir"):
-            kwargs["root_data_dir"] = "$root/data/$dataset"
+            kwargs["root_data_dir"] = path_append("$root", "data", "$dataset")
         # set workspace
         if (is_overridden("workspace") or is_overridden("root_model_dir")) and not is_overridden("model_dir"):
-            kwargs["model_dir"] = "$root_model_dir/$workspace"
+            kwargs["model_dir"] = path_append("$root_model_dir", "workspace")
 
         # rebuild relevant directory or file path according to the kwargs
         _dirs = [
-            "workspace", "root_data_dir", "data_dir", "root_model_dir",
-            "model_dir"
+            "workspace", "root_data_dir", "data_dir", "root_model_dir", "model_dir",
         ]
         for _dir in _dirs:
             exp = var2exp(

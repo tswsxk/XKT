@@ -116,8 +116,10 @@ def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
         cfg = Configuration(
             hyper_params={
                 "ku_num": 835,
-                "hidden_num": 835
-            }
+                "latent_dim": 600,
+                "hidden_num": 900,
+            },
+            nettype="EmbedDKT",
         )
 
         net = get_net(**cfg.hyper_params)

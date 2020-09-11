@@ -126,7 +126,7 @@ class Configuration(parser.Configuration):
             kwargs["root_data_dir"] = path_append("$root", "data", "$dataset")
         # set workspace
         if (is_overridden("workspace") or is_overridden("root_model_dir")) and not is_overridden("model_dir"):
-            kwargs["model_dir"] = path_append("$root_model_dir", "workspace")
+            kwargs["model_dir"] = path_append("$root_model_dir", "$workspace")
 
         # rebuild relevant directory or file path according to the kwargs
         _dirs = [

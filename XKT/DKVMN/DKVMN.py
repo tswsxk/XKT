@@ -210,8 +210,9 @@ class DKVMN(object):
             )
         except FileExistsError:
             if allow_reinit:
+                import mxnet as mx
                 mod.logger.info("model doesn't exist, initializing")
-                Module.net_initialize(net, cfg.ctx)
+                Module.net_initialize(net, cfg.ctx, mx.init.Uniform())
             else:
                 mod.logger.info(
                     "model doesn't exist, target file: %s" % model_file

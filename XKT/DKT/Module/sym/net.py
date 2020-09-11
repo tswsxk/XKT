@@ -20,7 +20,7 @@ def get_bp_loss(**kwargs):
 
 
 class DKTNet(gluon.HybridBlock):
-    def __init__(self, ku_num, hidden_num, nettype="DKT", dropout=0.0, **kwargs):
+    def __init__(self, ku_num, hidden_num, nettype="DKT", rnn_type=None, dropout=0.0, **kwargs):
         super(DKTNet, self).__init__(kwargs.get("prefix"), kwargs.get("params"))
 
         self.length = None
@@ -39,6 +39,16 @@ class DKTNet(gluon.HybridBlock):
                 # self.embedding = gluon.nn.HybridSequential()
                 # self.embedding.add(gluon.nn.Dense(hidden_num, flatten=False))
                 # self.embedding = lambda x: x
+
+            if rnn_type is not None:
+                if rnn_type in {"elman", "rnn"}:
+                    cell = gluon.rnn.RNNCell
+                elif rnn_type == "lstm":
+                    cell = gluon.rnn.LSTMCell
+                elif rnn_type == "gru":
+                    cell = gluon.rnn.GRUCell
+                else:
+                    raise TypeError("unknown rnn type: %s" % rnn_type)
 
             self.rnn = gluon.rnn.HybridSequentialRNNCell()
             self.rnn.add(

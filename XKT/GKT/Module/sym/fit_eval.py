@@ -9,11 +9,11 @@ from tqdm import tqdm
 
 
 def _fit_f(_net, _data, bp_loss_f, loss_function, loss_monitor):
-    keys, values, data_mask, label, label_mask = _data
-    output, _ = _net(keys, values, data_mask)
+    qs, data, data_mask, label, pick_index, label_mask = _data
+    output, _ = _net(qs, data, data_mask)
     bp_loss = None
     for name, func in loss_function.items():
-        loss = func(output, label, label_mask)
+        loss = func(output, pick_index, label, label_mask)
         if name in bp_loss_f:
             bp_loss = loss
         loss_value = nd.mean(loss).asscalar()
@@ -32,8 +32,10 @@ def eval_f(_net, test_data, ctx=mx.cpu()):
             ctx, *batch_data,
             even_split=False
         )
-        for (keys, values, data_mask, label, label_mask) in ctx_data:
-            output, _ = _net(keys, values, mask=data_mask)
+        for (qs, data, data_mask, label, pick_index, label_mask) in ctx_data:
+            output, _ = _net(qs, data, data_mask)
+            output = mx.nd.slice(output, (None, None), (None, -1))
+            output = mx.nd.pick(output, pick_index)
             pred = output.asnumpy().tolist()
             label = label.asnumpy().tolist()
             for i, length in enumerate(label_mask.asnumpy().tolist()):

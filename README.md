@@ -210,7 +210,12 @@ python3 DKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "
 
 ### DKVMN
 ```shell
-python3 DKVMN.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=DKVMN;ku_num=int(835);hidden_num=int(50);key_embedding_dim=int(50);value_embedding_dim=int(200);key_memory_size=int(20);key_memory_state_dim=int(50);value_memory_size=int(20);value_memory_state_dim=int(200);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKVMN --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi                
+python3 DKVMN.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "nettype=DKVMN;ku_num=int(835);hidden_num=int(835);key_embedding_dim=int(200);value_embedding_dim=int(200);key_memory_size=int(40);value_memory_size=int(40);dropout=float(0.5)" --ctx="gpu(0)" --model_name DKVMN --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
+```
+
+### GKT
+```shell
+python3 GKT.py train \$data_dir/train.json \$data_dir/test.json --hyper_params "ku_num=int(835);graph=PATH_TO_GRAPH;hidden_num=int(32);latent_dim=int(32);dropout=float(0.5)" --ctx="gpu(0)" --model_name GKT --root=$HOME/XKT --root_data_dir=\$root/data/ktbd/\$dataset --data_dir=\$root_data_dir --dataset=junyi
 ```
 
 ## Appendix

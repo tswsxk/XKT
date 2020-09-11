@@ -96,7 +96,7 @@ def train(train_fn, test_fn, reporthook=None, final_reporthook=None, **cfg_kwarg
     train_data = etl(_cfg.var2val(train_fn), params=_cfg)
     test_data = etl(_cfg.var2val(test_fn), params=_cfg)
 
-    numerical_check(_net, _cfg, train_data, test_data, dump_result=not tag, reporthook=reporthook,
+    numerical_check(_net, _cfg, train_data, test_data, dump_result=False, reporthook=reporthook,
                     final_reporthook=final_reporthook)
 
 
@@ -145,16 +145,16 @@ def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
             },
             hyper_params=dict(
                 ku_num=835,
-                key_embedding_dim=50,
+                key_embedding_dim=200,
                 value_embedding_dim=200,
-                hidden_num=900,
-                key_memory_size=20,
+                hidden_num=835,
+                key_memory_size=40,
                 dropout=0.5,
             ),
             batch_size=16,
             root="../../../",
             data_dir="$root_data_dir",
-            end_epoch=5,
+            end_epoch=10,
         )
 
     elif stage == 3:

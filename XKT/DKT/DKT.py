@@ -193,7 +193,7 @@ class DKT(DL.CliServiceModule):
     def model_init(
             self,
             load_epoch=None, force_init=False, cfg=None,
-            allow_reinit=True, trainer=None,
+            allow_reinit=True, trainer=None, net_kwargs=None,
             **kwargs
     ):
         mod = self.mod
@@ -201,37 +201,29 @@ class DKT(DL.CliServiceModule):
         cfg = mod.cfg if cfg is None else cfg
         begin_epoch = cfg.begin_epoch
 
-        if self.initialized and not force_init:
-            mod.logger.warning("model has been initialized, skip model_init")
-
         load_epoch = load_epoch if load_epoch is not None else begin_epoch
 
+        # 5 todo 初始化模型
         model_file = kwargs.get(
             "init_model_file", mod.epoch_params_filename(load_epoch)
         )
-        try:
-            net = mod.load(net, load_epoch, cfg.ctx)
-            mod.logger.info(
-                "load params from existing model file "
-                "%s" % model_file
-            )
-        except FileExistsError:
-            if allow_reinit:
-                mod.logger.info("model doesn't exist, initializing")
-                Module.net_initialize(net, cfg.ctx)
-            else:
-                mod.logger.info(
-                    "model doesn't exist, target file: %s" % model_file
-                )
+        mod.net_initialize(
+            net,
+            force_init=force_init, cfg=cfg,
+            allow_reinit=allow_reinit, logger=mod.logger,
+            initialized=self.initialized, model_file=model_file,
+            net_kwargs=net_kwargs, **kwargs
+        )
 
         self.initialized = True
 
         # # optional
+        # # todo: whether to use static symbol to accelerate
         # # note: do not invoke this method for dynamic structure like rnn
         # # suggestion: annotate this until your process worked
         # net.hybridize()
 
-        self.trainer = Module.get_trainer(
+        self.trainer = mod.get_trainer(
             net, optimizer=cfg.optimizer,
             optimizer_params=cfg.optimizer_params,
             lr_params=cfg.lr_params,
@@ -353,7 +345,7 @@ class DKT(DL.CliServiceModule):
         self.train_net(train_data, valid_data)
 
     @classmethod
-    def train(cls, *args, cfg=None, **kwargs):
+    def train(cls, train_f, valid_f, cfg=None, **kwargs):
         module = cls(cfg=cfg, **kwargs)
         module.set_loss()
         # module.viz()
@@ -361,7 +353,7 @@ class DKT(DL.CliServiceModule):
         module.toolbox_init()
         module.model_init(**kwargs)
 
-        module._train(*args)
+        module._train(train_f, valid_f)
 
         return module
 
@@ -414,6 +406,18 @@ class DKT(DL.CliServiceModule):
             cls.inc_train,
         ]
 
+    @classmethod
+    def run(cls, parse_args=None):
+        cfg_parser = cls.get_parser()
+        cfg_kwargs = cfg_parser(parse_args)
+
+        if "subcommand" not in cfg_kwargs:
+            cfg_parser.print_help()
+            return
+        subcommand = cfg_kwargs["subcommand"]
+        del cfg_kwargs["subcommand"]
+
+        eval("%s.%s" % (cls.__name__, subcommand))(**cfg_kwargs)
 
 if __name__ == '__main__':
     DKT.run()
@@ -422,9 +426,9 @@ if __name__ == '__main__':
     #         "train", "$data_dir/train", "$data_dir/test",
     #         "--workspace", "DKT",
     #         "--hyper_params",
-    #         "nettype=DKT;ku_num=int(835);hidden_num=int(300);latent_dim=int(100);dropout=float(0.0)",
+    #         "nettype=DKT;ku_num=int(146);hidden_num=int(200);latent_dim=int(100);dropout=float(0.0)",
     #         "--loss_params", "lw2=float(1e-100)",
-    #         "--dataset", "junyi",
+    #         "--dataset", "assistment_2009_2010",
     #         "--ctx", "cpu(0)"
     #     ]
     # )

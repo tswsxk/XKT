@@ -4,3 +4,4 @@
 from .fit_eval import fit_f, eval_f
 from .net import get_net, get_bp_loss
 from .viz import net_viz
+from .init import net_init

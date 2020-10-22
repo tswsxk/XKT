@@ -2,6 +2,7 @@
 # Copyright @tongshiwei
 import os
 
+from longling.ML import DL
 import mxnet as mx
 
 try:
@@ -10,7 +11,7 @@ except (SystemError, ModuleNotFoundError):
     from Module import *
 
 
-class DKT(object):
+class DKT(DL.CliServiceModule):
     def __init__(
             self, load_epoch=None, cfg=None, toolbox_init=False, **kwargs
     ):
@@ -57,7 +58,11 @@ class DKT(object):
             self.toolbox_init(**cfg.toolbox_params)
 
     @staticmethod
-    def config(cfg=None, **kwargs):
+    def get_configuration_cls():
+        return Configuration
+
+    @classmethod
+    def config(cls, cfg=None, **kwargs):
         """
         配置初始化
 
@@ -69,11 +74,13 @@ class DKT(object):
         kwargs
             参数配置可选参数
         """
-        cfg = Configuration(
+        configuration_cls = cls.get_configuration_cls()
+
+        cfg = configuration_cls(
             **kwargs
         ) if cfg is None else cfg
-        if not isinstance(cfg, Configuration):
-            cfg = Configuration.load_cfg(cfg, **kwargs)
+        if not isinstance(cfg, configuration_cls):
+            cfg = configuration_cls.load_cfg(cfg, **kwargs)
         cfg.dump(override=True)
         return cfg
 
@@ -128,7 +135,7 @@ class DKT(object):
 
         from longling.lib.clock import Clock
         from longling.lib.utilog import config_logging
-        from longling.ML.toolkit.formatter import MultiClassEvalFormatter as Formatter
+        from longling.ML.toolkit import EvalFormatter as Formatter
         from longling.ML.toolkit.monitor import MovingLoss, ConsoleProgressMonitor as ProgressMonitor
 
         self.toolbox = {
@@ -345,24 +352,26 @@ class DKT(object):
         valid_data = self.etl(valid_f)
         self.train_net(train_data, valid_data)
 
-    @staticmethod
-    def train(tf, vf, cfg=None, **kwargs):
-        module = DKT(cfg=cfg, **kwargs)
+    @classmethod
+    def train(cls, *args, cfg=None, **kwargs):
+        module = cls(cfg=cfg, **kwargs)
         module.set_loss()
         # module.viz()
 
         module.toolbox_init()
         module.model_init(**kwargs)
 
-        module._train(tf, vf)
+        module._train(*args)
 
-    @staticmethod
-    def test(test_epoch, dump_file=None, **kwargs):
+        return module
+
+    @classmethod
+    def test(cls, test_filename, test_epoch, dump_file=None, **kwargs):
         from longling.ML.toolkit.formatter import EvalFormatter
         formatter = EvalFormatter(dump_file=dump_file)
-        module = DKT.load(test_epoch, **kwargs)
+        module = cls.load(test_epoch, **kwargs)
 
-        test_data = module.etl("test")
+        test_data = module.etl(test_filename)
         eval_result = module.mod.eval(module.net, test_data)
         formatter(
             tips="test",
@@ -370,56 +379,40 @@ class DKT(object):
         )
         return eval_result
 
-    @staticmethod
-    def inc_train(init_model_file, validation_logger_mode="w", **kwargs):
+    @classmethod
+    def inc_train(cls, init_model_file, *args, validation_logger_mode="w", **kwargs):
         # 增量学习，从某一轮参数继续训练
-        module = DKT(**kwargs)
+        module = cls(**kwargs)
         module.toolbox_init(validation_logger_mode=validation_logger_mode)
         module.model_init(init_model_file=init_model_file)
 
-        # module._train()
-        raise NotImplementedError
+        module._train(*args)
 
-    @staticmethod
-    def dump_configuration(**kwargs):
-        DKT.get_module(**kwargs)
+    @classmethod
+    def dump_configuration(cls, **kwargs):
+        cls.get_module(**kwargs)
 
-    @staticmethod
-    def load(load_epoch=None, **kwargs):
-        module = DKT(**kwargs)
+    @classmethod
+    def load(cls, load_epoch=None, **kwargs):
+        module = cls(**kwargs)
         load_epoch = module.mod.cfg.end_epoch if load_epoch is None \
             else load_epoch
         module.model_init(load_epoch, **kwargs)
         return module
 
+    # ################### config cli ######################
     @staticmethod
-    def get_parser():
-        cfg_parser = ConfigurationParser(
-            Configuration,
-            commands=[
-                DKT.config,
-                DKT.train, DKT.test,
-                DKT.inc_train,
-            ]
-        )
-        return cfg_parser
+    def get_configuration_parser_cls():
+        return ConfigurationParser
 
-    @staticmethod
-    def run(parse_args=None):
-        cfg_parser = DKT.get_parser()
-        cfg_kwargs = cfg_parser(parse_args)
-
-        if "subcommand" not in cfg_kwargs:
-            cfg_parser.print_help()
-            return
-        subcommand = cfg_kwargs["subcommand"]
-        del cfg_kwargs["subcommand"]
-
-        eval("%s.%s" % (DKT.__name__, subcommand))(**cfg_kwargs)
-
-
-def main():
-    DKT.run()
+    @classmethod
+    def cli_commands(cls):
+        return [
+            cls.config,
+            cls.train,
+            cls.test,
+            cls.inc_train,
+        ]
 
 
 if __name__ == '__main__':

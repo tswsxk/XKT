@@ -27,7 +27,7 @@ def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_resul
     loss_function.update(bp_loss_f)
 
     from longling.ML.MxnetHelper.glue import module
-    from longling.ML.toolkit import MultiClassEvalFormatter as Formatter
+    from longling.ML.toolkit import EpochEvalFMT as Formatter
     from longling.ML.toolkit import MovingLoss
     from tqdm import tqdm
 
@@ -111,10 +111,11 @@ def train(train_fn, test_fn, reporthook=None, final_reporthook=None, **cfg_kwarg
     from longling.ML.toolkit.hyper_search import prepare_hyper_search
 
     cfg_kwargs, reporthook, final_reporthook, tag = prepare_hyper_search(
-        cfg_kwargs, Configuration, reporthook, final_reporthook, primary_key="auc", with_keys="prf:avg:f1",
+        cfg_kwargs, Configuration, reporthook, final_reporthook, primary_key="macro_avg:f1"
     )
 
     _cfg = Configuration(**cfg_kwargs)
+    print(_cfg)
     _net = get_net(**_cfg.hyper_params)
 
     train_data = etl(_cfg.var2val(train_fn), params=_cfg)
@@ -158,8 +159,8 @@ def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
         train(
             "$data_dir/train.json",
             "$data_dir/test.json",
-            dataset="assistment0910c",
-            ctx=mx.cpu(),
+            dataset="assistment_2009_2010",
+            ctx=mx.gpu(2),
             optimizer_params={
                 "learning_rate": 0.001
             },
@@ -186,4 +187,4 @@ def sym_run(stage: (int, str) = "viz"):  # pragma: no cover
 
 
 if __name__ == '__main__':  # pragma: no cover
-    sym_run("cli")
+    sym_run("real")

@@ -10,7 +10,7 @@ from XKT.shared import SLMLoss
 
 def get_net(ku_num, hidden_num, nettype="DKT", dropout=0.0, **kwargs):
     if nettype in {"EmbedDKT", "DKT"}:
-        return DKTNet(ku_num, hidden_num, nettype, dropout, **kwargs)
+        return DKTNet(ku_num, hidden_num, nettype, dropout=dropout, **kwargs)
     else:
         raise TypeError("Unknown nettype: %s" % nettype)
 

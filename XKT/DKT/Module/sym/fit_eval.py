@@ -6,7 +6,7 @@ import mxnet as mx
 import mxnet.ndarray as nd
 from longling.ML.MxnetHelper.toolkit.ctx import split_and_load
 from mxnet import autograd
-from sklearn.metrics import roc_auc_score, precision_recall_fscore_support
+from longling.ML.metrics import classification_report
 from tqdm import tqdm
 
 
@@ -46,23 +46,7 @@ def eval_f(_net, test_data, ctx=mx.cpu()):
                 prediction.extend(pred[i][:length])
                 pred_labels.extend([0 if p < 0.5 else 1 for p in pred[i][:length]])
 
-    auc = roc_auc_score(ground_truth, prediction)
-    precision, recall, f1, _ = precision_recall_fscore_support(ground_truth, pred_labels)
-
-    evaluation_result = {}
-
-    evaluation_result.update(
-        {"precision_%d" % i: precision[i] for i in range(len(precision))}
-    )
-    evaluation_result.update(
-        {"recall_%d" % i: recall[i] for i in range(len(recall))}
-    )
-    evaluation_result.update(
-        {"f1_%d" % i: f1[i] for i in range(len(f1))}
-    )
-
-    evaluation_result.update({"auc": auc})
-    return evaluation_result
+    return classification_report(ground_truth, y_pred=pred_labels, y_score=prediction)
 
 
 def fit_f(net, batch_size, batch_data,

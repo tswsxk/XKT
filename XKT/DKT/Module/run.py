@@ -56,7 +56,7 @@ def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_resul
     )
 
     for epoch in range(_cfg.begin_epoch, _cfg.end_epoch):
-        for batch_data in progress_monitor(train_data, "Epoch: %s" % epoch):
+        for i, batch_data in enumerate(progress_monitor(train_data, "Epoch: %s" % epoch)):
             fit_f(
                 net=_net, batch_size=batch_size, batch_data=batch_data,
                 trainer=trainer, bp_loss_f=bp_loss_f,
@@ -64,14 +64,35 @@ def numerical_check(_net, _cfg: Configuration, train_data, test_data, dump_resul
                 loss_monitor=loss_monitor,
                 ctx=ctx,
             )
+        if _cfg.lr_params and "update_params" in _cfg.lr_params:
+            _cfg.logger.info("reset trainer")
+            lr_params = _cfg.lr_params.pop("update_params")
+            lr_update_params = dict(
+                batches_per_epoch=i + 1,
+                lr=_cfg.optimizer_params["learning_rate"],
+                update_epoch=lr_params.get(
+                    "update_epoch",
+                    _cfg.end_epoch - _cfg.begin_epoch - 1
+                )
+            )
+            lr_update_params.update(lr_params)
+
+            trainer = module.Module.get_trainer(
+                _net, optimizer=_cfg.optimizer,
+                optimizer_params=_cfg.optimizer_params,
+                lr_params=lr_update_params,
+                select=_cfg.train_select,
+                logger=_cfg.logger
+            )
 
         if epoch % 1 == 0:
             msg, data = evaluation_formatter(
-                epoch=epoch,
+                iteration=epoch,
                 loss_name_value=dict(loss_monitor.items()),
                 eval_name_value=eval_f(_net, test_data, ctx=ctx),
                 extra_info=None,
                 dump=dump_result,
+                keep={"msg", "data"}
             )
             print(msg)
             if reporthook is not None:

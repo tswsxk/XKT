@@ -65,8 +65,13 @@ class Module(module.Module):
         )
         self.logger = configuration.logger
 
-        self.sym_gen = get_net
-        self.fit_f = fit_f
+    @property
+    def fit_f(self):
+        return fit_f
+
+    @property
+    def sym_gen(self):
+        return get_net
 
     def dump_configuration(self, filename=None):
         filename = filename if filename is not None \

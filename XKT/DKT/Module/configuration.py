@@ -69,10 +69,12 @@ class Configuration(parser.Configuration):
     # 用户变量
     num_buckets = 100
     # 超参数
-    hyper_params = {
-    }
-    loss_params = {
-    }
+    # 网络超参数
+    hyper_params = {}
+    # 网络初始化参数
+    init_params = {}
+    # 损失函数超参数
+    loss_params = {}
     # 说明
     caption = ""
 
@@ -106,6 +108,10 @@ class Configuration(parser.Configuration):
             params.update(self.load_cfg(params_json=params_json))
         params.update(**kwargs)
 
+        for key in params:
+            if key.endswith("_params") and key + "_update" in params:
+                params[key].update(params[key + "_update"])
+
         # path_override_check
         path_check_list = ["dataset", "root_data_dir", "workspace", "root_model_dir", "model_dir"]
         _overridden = {}
@@ -126,11 +132,12 @@ class Configuration(parser.Configuration):
             kwargs["root_data_dir"] = path_append("$root", "data", "$dataset")
         # set workspace
         if (is_overridden("workspace") or is_overridden("root_model_dir")) and not is_overridden("model_dir"):
-            kwargs["model_dir"] = path_append("$root_model_dir", "$workspace")
+            kwargs["model_dir"] = path_append("$root_model_dir", "workspace")
 
         # rebuild relevant directory or file path according to the kwargs
         _dirs = [
-            "workspace", "root_data_dir", "data_dir", "root_model_dir", "model_dir",
+            "workspace", "root_data_dir", "data_dir", "root_model_dir",
+            "model_dir"
         ]
         for _dir in _dirs:
             exp = var2exp(

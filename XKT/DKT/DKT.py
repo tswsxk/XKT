@@ -7,13 +7,13 @@ import mxnet as mx
 
 try:
     from .Module import *
-except (SystemError, ModuleNotFoundError):
+except (SystemError, ModuleNotFoundError, ImportError):
     from Module import *
 
 
 class DKT(DL.CliServiceModule):
     def __init__(
-            self, load_epoch=None, cfg=None, toolbox_init=False, **kwargs
+            self, load_epoch=None, cfg=None, toolbox_init=False, model_path=None, **kwargs
     ):
         """
         模型初始化
@@ -47,7 +47,7 @@ class DKT(DL.CliServiceModule):
         self.initialized = False
 
         if load_epoch is not None:
-            self.model_init(load_epoch, allow_reinit=False)
+            self.model_init(load_epoch, allow_reinit=False, model_path=model_path)
 
         self.bp_loss_f = None
         self.loss_function = None
@@ -135,7 +135,7 @@ class DKT(DL.CliServiceModule):
 
         from longling.lib.clock import Clock
         from longling.lib.utilog import config_logging
-        from longling.ML.toolkit import EvalFormatter as Formatter
+        from longling.ML.toolkit import EpochEvalFMT as Formatter
         from longling.ML.toolkit.monitor import MovingLoss, ConsoleProgressMonitor as ProgressMonitor
 
         self.toolbox = {
@@ -194,6 +194,7 @@ class DKT(DL.CliServiceModule):
             self,
             load_epoch=None, force_init=False, cfg=None,
             allow_reinit=True, trainer=None, net_kwargs=None,
+            model_path=None,
             **kwargs
     ):
         mod = self.mod
@@ -358,6 +359,11 @@ class DKT(DL.CliServiceModule):
         return module
 
     @classmethod
+    def predict(cls, pred_filename, model_file, config_path):
+        mod = cls()
+
+
+    @classmethod
     def test(cls, test_filename, test_epoch, dump_file=None, **kwargs):
         from longling.ML.toolkit.formatter import EvalFormatter
         formatter = EvalFormatter(dump_file=dump_file)
@@ -419,16 +425,17 @@ class DKT(DL.CliServiceModule):
 
         eval("%s.%s" % (cls.__name__, subcommand))(**cfg_kwargs)
 
+
 if __name__ == '__main__':
-    DKT.run()
-    # DKT.run(
-    #     [
-    #         "train", "$data_dir/train", "$data_dir/test",
-    #         "--workspace", "DKT",
-    #         "--hyper_params",
-    #         "nettype=DKT;ku_num=int(146);hidden_num=int(200);latent_dim=int(100);dropout=float(0.0)",
-    #         "--loss_params", "lw2=float(1e-100)",
-    #         "--dataset", "assistment_2009_2010",
-    #         "--ctx", "cpu(0)"
-    #     ]
-    # )
+    # DKT.run()
+    DKT.run(
+        [
+            "train", "$root_data_dir/train.json", "$root_data_dir/test.json",
+            "--workspace", "DKT",
+            "--hyper_params",
+            "nettype=DKT;ku_num=int(27613);hidden_num=int(600);dropout=float(0.0)",
+            # "--loss_params", "lw2=float(1e-100)",
+            "--dataset", "nips",
+            "--ctx", "cpu(3)"
+        ]
+    )

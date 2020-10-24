@@ -5,7 +5,7 @@ import json
 
 from tqdm import tqdm
 
-__all__ = ["extract", "pseudo_data_generation"]
+__all__ = ["extract", "pseudo_data_generation", "extract_iter"]
 
 
 def extract(data_src):
@@ -20,6 +20,17 @@ def extract(data_src):
                 responses.append(data[i: i + step])
 
     return responses
+
+
+def extract_iter(data_src):
+    step = 200
+    with open(data_src) as f:
+        for line in tqdm(f, "reading data from %s" % data_src):
+            data = json.loads(line)
+            for i in range(0, len(data), step):
+                if len(data[i: i + step]) < 2:
+                    continue
+                yield data[i: i + step]
 
 
 def pseudo_data_generation(_cfg):

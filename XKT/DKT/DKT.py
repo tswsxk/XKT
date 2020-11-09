@@ -2,8 +2,8 @@
 # Copyright @tongshiwei
 import os
 
-from longling.ML import DL
 import mxnet as mx
+from longling.ML import DL
 
 try:
     from .Module import *
@@ -31,8 +31,8 @@ class DKT(DL.CliServiceModule):
             参数配置可选参数
         """
         # 1 配置参数初始化
-        cfg = self.config(cfg, **kwargs)
-        self.mod = self.get_module(cfg)
+        # todo 到 Configuration处定义相关参数
+        super(DKT, self).__init__(cfg, **kwargs)
 
         # 2.1 重新生成
         self.mod.logger.info("generating symbol")
@@ -41,7 +41,7 @@ class DKT(DL.CliServiceModule):
         )
         # 2.2 装载已有模型, export 出来的文件
         # net = mod.load(begin_epoch)
-        # net = DKTModule.load_net(filename)
+        # net = DKT.load_net(filename)
 
         self.net = net
         self.initialized = False
@@ -84,8 +84,8 @@ class DKT(DL.CliServiceModule):
         cfg.dump(override=True)
         return cfg
 
-    @staticmethod
-    def get_module(cfg):
+    @classmethod
+    def get_module(cls, cfg):
         """
         根据配置，生成模型模块
 
@@ -98,7 +98,9 @@ class DKT(DL.CliServiceModule):
         mod: Module
             模型模块
         """
-        mod = Module(cfg)
+        module_cls = cls.get_module_cls()
+
+        mod = module_cls(cfg)
         mod.logger.info(str(mod))
         filename = mod.cfg.cfg_path
         mod.logger.info("parameters saved to %s" % filename)
@@ -329,7 +331,7 @@ class DKT(DL.CliServiceModule):
         return outputs
 
     def transform(self, data):
-        return transform(data, self.mod.cfg)
+        return bucket_transform(data, self.mod.cfg)
 
     def etl(self, data_src, cfg=None):
         mod = self.mod
@@ -357,11 +359,6 @@ class DKT(DL.CliServiceModule):
         module._train(train_f, valid_f)
 
         return module
-
-    @classmethod
-    def predict(cls, pred_filename, model_file, config_path):
-        mod = cls()
-
 
     @classmethod
     def test(cls, test_filename, test_epoch, dump_file=None, **kwargs):

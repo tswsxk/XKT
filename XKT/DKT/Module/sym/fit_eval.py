@@ -5,8 +5,8 @@ __all__ = ["fit_f", "eval_f"]
 import mxnet as mx
 import mxnet.ndarray as nd
 from longling.ML.MxnetHelper.toolkit.ctx import split_and_load
-from mxnet import autograd
 from longling.ML.metrics import classification_report
+from mxnet import autograd
 from tqdm import tqdm
 
 

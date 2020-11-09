@@ -6,7 +6,7 @@ from longling import path_append
 try:
     # for python module
     from .sym import get_net, get_bp_loss, fit_f, eval_f, net_viz
-    from .etl import transform, etl, pseudo_data_iter
+    from .etl import bucket_transform, etl, pseudo_data_iter
     from .configuration import Configuration, ConfigurationParser
 except (ImportError, SystemError):  # pragma: no cover
     # for python script

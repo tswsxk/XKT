@@ -58,6 +58,10 @@ class DKT(DL.CliServiceModule):
             self.toolbox_init(**cfg.toolbox_params)
 
     @staticmethod
+    def get_module_cls():
+        return Module
+
+    @staticmethod
     def get_configuration_cls():
         return Configuration
 

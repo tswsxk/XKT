@@ -234,6 +234,8 @@ the following are the url of those implemented by python (the stared is the auth
 
 * EKT[[pytorch*]](https://github.com/bigdata-ustc/ekt)
 
+More models can be found in [here](https://paperswithcode.com/task/knowledge-tracing)
+
 ### Dataset
 There are some datasets which are suitable for this task, 
 you can refer to [BaseData ktbd doc](https://github.com/bigdata-ustc/EduData/blob/master/docs/ktbd.md) 

@@ -8,16 +8,19 @@ from tqdm import tqdm
 __all__ = ["extract", "pseudo_data_generation", "extract_iter"]
 
 
-def extract(data_src):
+def extract(data_src, max_step=200):
     responses = []
-    step = 200
+    step = max_step
     with open(data_src) as f:
         for line in tqdm(f, "reading data from %s" % data_src):
             data = json.loads(line)
-            for i in range(0, len(data), step):
-                if len(data[i: i + step]) < 2:
-                    continue
-                responses.append(data[i: i + step])
+            if step is not None:
+                for i in range(0, len(data), step):
+                    if len(data[i: i + step]) < 2:
+                        continue
+                    responses.append(data[i: i + step])
+            else:
+                responses.append(data)
 
     return responses
 

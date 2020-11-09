@@ -110,3 +110,4 @@ venv.bak/
 
 # User Definition
 data/
+!data/demo

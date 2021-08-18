@@ -4,6 +4,8 @@
 [![Build Status](https://www.travis-ci.org/tswsxk/XKT.svg?branch=master)](https://www.travis-ci.org/tswsxk/XKT)
 [![codecov](https://codecov.io/gh/tswsxk/XKT/branch/master/graph/badge.svg)](https://codecov.io/gh/tswsxk/XKT)
 
+Important Notice: this repo is going to be upgraded, where the architecture will have a huge modification.
+
 Multiple Knowledge Tracing models implemented by mxnet-gluon. 
 Mirror version of pytorch can be found [here](https://github.com/bigdata-ustc/TKT).
 For convenient dataset downloading and preprocessing of knowledge tracing task, 

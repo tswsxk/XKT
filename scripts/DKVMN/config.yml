@@ -1,0 +1,9 @@
+searchSpaceFile: search_space.json
+trialCommand: python DKVMN.py hs dkvmn a0910c 10  # NOTE: change "python3" to "python" if you are using Windows
+trialGpuNumber: 0
+trialConcurrency: 1
+tuner:
+  name: GridSearch
+trainingService:
+  platform: local
+experimentWorkingDirectory: ./nni-experiments

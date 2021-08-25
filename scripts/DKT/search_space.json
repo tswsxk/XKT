@@ -1,0 +1,6 @@
+{
+  "hyper_params_update:hidden_num": {"_type":"choice","_value":[50, 100, 200]},
+  "hyper_params_update:dropout": {"_type":"choice","_value":[0, 0.2, 0.5]},
+  "optimizer_params_update:learning_rate": {"_type":"choice","_value":[0.1, 0.01, 0.001]},
+  "optimizer_params_update:wd": {"_type":"choice","_value":[0, 0.0001]}
+}

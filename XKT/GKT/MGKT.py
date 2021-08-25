@@ -4,43 +4,37 @@
 from tqdm import tqdm
 import mxnet as mx
 from XKT.meta import KTM
-from XKT.utils import LMLoss
+from XKT.utils import SLMLoss
 from baize import get_params_filepath, get_epoch_params_filepath, path_append
 from baize.const import CFG_JSON
-from baize.mxnet import light_module as lm, Configuration as CFG, fit_wrapper, split_and_load
+from baize.mxnet import light_module as lm, Configuration, fit_wrapper, split_and_load
 from baize.metrics import classification_report
-# from .etl import etl
-# from .net import get_net
-
-from XKT.DKVMN.etl import etl
-from XKT.DKVMN.net import get_net
-
-
-class Configuration(CFG):
-    init_params = {"initializer": "uniform"}
-    optimizer_params_update = {'wd': 0}
+from .etl import etl
+from .net import get_net
 
 
 @fit_wrapper
 def fit(net, batch_data, loss_function, *args, **kwargs):
-    keys, values, data_mask, label, label_mask = batch_data
-    output, _ = net(keys, values, mask=data_mask)
-    loss = loss_function(output, label, label_mask)
+    item_id, data, data_mask, label, next_item_id, label_mask = batch_data
+    output, _ = net(item_id, data, data_mask)
+    loss = loss_function(output, next_item_id, label, label_mask)
     return sum(loss)
 
 
-def evaluation(net, test_data, ctx=mx.cpu(), verbose=True, *args, **kwargs):
+def evaluation(net, test_data, ctx=mx.cpu(), *args, **kwargs):
     ground_truth = []
     prediction = []
     pred_labels = []
 
-    for batch_data in tqdm(test_data, "evaluating", disable=not verbose):
+    for batch_data in tqdm(test_data, "evaluating"):
         ctx_data = split_and_load(
             ctx, *batch_data,
             even_split=False
         )
-        for (keys, values, data_mask, label, label_mask) in ctx_data:
-            output, _ = net(keys, values, mask=data_mask)
+        for (item_id, data, data_mask, label, next_item_id, label_mask) in ctx_data:
+            output, _ = net(item_id, data, data_mask)
+            output = mx.nd.slice(output, (None, None), (None, -1))
+            output = mx.nd.pick(output, next_item_id)
             pred = output.asnumpy().tolist()
             label = label.asnumpy().tolist()
             for i, length in enumerate(label_mask.asnumpy().tolist()):
@@ -52,27 +46,9 @@ def evaluation(net, test_data, ctx=mx.cpu(), verbose=True, *args, **kwargs):
     return classification_report(ground_truth, y_pred=pred_labels, y_score=prediction)
 
 
-class DKVMN(KTM):
-    """
-    Examples
-    --------
-    >>> import mxnet as mx
-    >>> model = DKVMN(
-    ...     init_net=True,
-    ...     hyper_params={
-    ...         "ku_num": 3, "hidden_num": 5, "key_embedding_dim": 2, "value_embedding_dim": 2, "key_memory_size": 3
-    ...     }
-    ... )
-    >>> model.net.initialize()
-    >>> item_id = mx.nd.ones((2, 4))
-    >>> response = mx.nd.ones((2, 4))
-    >>> outputs, _ = model(item_id, response)
-    >>> outputs.shape
-    (2, 4)
-    """
-
+class MGKT(KTM):
     def __init__(self, init_net=True, cfg_path=None, *args, **kwargs):
-        super(DKVMN, self).__init__(Configuration(params_path=cfg_path, *args, **kwargs))
+        super(MGKT, self).__init__(Configuration(params_path=cfg_path, *args, **kwargs))
         if init_net:
             self.net = get_net(**self.cfg.hyper_params)
 
@@ -90,7 +66,7 @@ class DKVMN(KTM):
             fit_f=fit,
             eval_f=evaluation,
             trainer=None,
-            loss_function=LMLoss(**self.cfg.loss_params),
+            loss_function=SLMLoss(**self.cfg.loss_params),
             train_data=train_data,
             test_data=valid_data,
             enable_hyper_search=enable_hyper_search,
@@ -105,7 +81,7 @@ class DKVMN(KTM):
     @classmethod
     def from_pretrained(cls, model_dir, best_epoch=None, *args, **kwargs):
         cfg_path = path_append(model_dir, CFG_JSON)
-        model = DKVMN(init_net=True, cfg_path=cfg_path, model_dir=model_dir)
+        model = MGKT(init_net=True, cfg_path=cfg_path, model_dir=model_dir)
         cfg = model.cfg
         model.load(
             get_epoch_params_filepath(cfg.model_name, best_epoch, cfg.model_dir)
@@ -116,7 +92,7 @@ class DKVMN(KTM):
     @classmethod
     def benchmark_train(cls, train_path, valid_path=None, enable_hyper_search=False,
                         save=False, *args, **kwargs):
-        dkt = DKVMN(init_net=not enable_hyper_search, *args, **kwargs)
+        dkt = MGKT(init_net=not enable_hyper_search, *args, **kwargs)
         train_data = etl(train_path, dkt.cfg)
         valid_data = etl(valid_path, dkt.cfg) if valid_path is not None else None
         dkt.train(train_data, valid_data, re_init_net=enable_hyper_search, enable_hyper_search=enable_hyper_search,
@@ -124,6 +100,6 @@ class DKVMN(KTM):
 
     @classmethod
     def benchmark_eval(cls, test_path, model_path, best_epoch, *args, **kwargs):
-        dkt = DKVMN.from_pretrained(model_path, best_epoch)
+        dkt = MGKT.from_pretrained(model_path, best_epoch)
         test_data = etl(test_path, dkt.cfg)
         return dkt.eval(test_data)

@@ -1,0 +1,3 @@
+{
+  "hyper_params_update:hidden_num": {"_type":"choice","_value":[16, 32, 64]}
+}

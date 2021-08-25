@@ -1,0 +1,9 @@
+{
+  "hyper_params_update:hidden_num": {"_type":"choice","_value":[30, 50, 100]},
+  "hyper_params_update:key_embedding_dim": {"_type":"choice","_value":[20, 30, 50]},
+  "hyper_params_update:value_embedding_dim": {"_type":"choice","_value":[20, 30, 50]},
+  "hyper_params_update:key_memory_size": {"_type":"choice","_value":[10, 20, 30, 50]},
+  "hyper_params_update:dropout": {"_type":"choice","_value":[0.5]},
+  "optimizer_params_update:learning_rate": {"_type":"choice","_value":[0.01, 0.001]},
+  "optimizer_params_update:wd": {"_type":"choice","_value":[0, 0.0001]}
+}

@@ -1,20 +1,13 @@
 # coding: utf-8
-# create by tongshiwei on 2019/4/12
+# 2021/8/22 @ tongshiwei
 
-import mxnet as mx
-from gluonnlp.data import FixedBucketSampler, PadSequence
+import mxnet.ndarray as nd
 from tqdm import tqdm
+from XKT.utils import extract
+from baize.utils import FixedBucketSampler, PadSequence
 
-from XKT.shared.etl import *
 
-
-def transform(raw_data, params):
-    # 定义数据转换接口
-    # raw_data --> batch_data
-
-    num_buckets = params.num_buckets
-    batch_size = params.batch_size
-
+def transform(raw_data, batch_size, num_buckets=100):
     responses = raw_data
 
     batch_idxes = FixedBucketSampler([len(rs) for rs in responses], batch_size, num_buckets=num_buckets)
@@ -49,33 +42,14 @@ def transform(raw_data, params):
         batch_labels, label_mask = zip(*[(padder(labels), len(labels)) for labels in batch_labels])
         batch_pick_index = [padder(pick_index) for pick_index in batch_pick_index]
         batch.append(
-            [mx.nd.array(batch_qs), mx.nd.array(batch_rs), mx.nd.array(data_mask), mx.nd.array(batch_labels),
-             mx.nd.array(batch_pick_index),
-             mx.nd.array(label_mask)])
+            [nd.array(batch_qs), nd.array(batch_rs), nd.array(data_mask), nd.array(batch_labels),
+             nd.array(batch_pick_index),
+             nd.array(label_mask)])
 
     return batch
 
 
-def etl(data_src, params):
+def etl(data_src, cfg=None, batch_size=None, **kwargs):  # pragma: no cover
+    batch_size = batch_size if batch_size is not None else cfg.batch_size
     raw_data = extract(data_src)
-    return transform(raw_data, params)
-
-
-def pseudo_data_iter(_cfg):
-    return transform(pseudo_data_generation(_cfg), _cfg)
-
-
-if __name__ == '__main__':
-    from longling.lib.structure import AttrDict
-    import os
-
-    filename = "../../../data/junyi/data/test"
-
-    print(os.path.abspath(filename))
-
-    for data in tqdm(extract(filename)):
-        pass
-
-    parameters = AttrDict({"batch_size": 128, "num_buckets": 100})
-    for data in tqdm(etl(filename, params=parameters)):
-        pass
+    return transform(raw_data, batch_size, **kwargs)

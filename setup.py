@@ -23,7 +23,7 @@ except Exception as e:
 
 setup(
     name='XKT',
-    version='0.0.1',
+    version='0.0.2',
     packages=find_packages(),
     python_requires='>=3.6',
     long_description='Refer to full documentation https://github.com/bigdata-ustc/XKT/blob/master/README.md'
@@ -35,9 +35,7 @@ setup(
     },
     install_requires=mxnet_requires + [
         'tqdm',
-        'gluonnlp',
-        'sklearn',
-        'longling==1.3.13',
+        'PyBaize>=0.0.5',
     ],  # And any other dependencies foo needs
     entry_points={
     },

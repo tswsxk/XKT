@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 test_deps = [
     'pytest>=4',
     'pytest-cov>=2.6.0',
-    'pytest-pep8>=1',
+    'pytest-flake8'
     'EduData>=0.0.4',
 ]
 

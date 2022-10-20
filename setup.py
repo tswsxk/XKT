@@ -9,6 +9,7 @@ test_deps = [
     'pytest-cov>=2.6.0',
     'pytest-flake8',
     'EduData>=0.0.4',
+    'flake8<5.0.0'
 ]
 
 try:

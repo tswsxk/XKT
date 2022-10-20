@@ -96,7 +96,7 @@ class Graph(object):
         if isinstance(x, mx.nd.NDArray):
             x = x.asnumpy().tolist()
         if isinstance(x, list):
-            return [self.neighbors(_x) for _x in x]
+            return [self.successors(_x) for _x in x]
         elif isinstance(x, (int, float)):
             if not ordinal:
                 if len(self.directed_graphs) == 0:
